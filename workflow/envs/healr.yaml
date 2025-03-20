@@ -1,0 +1,9 @@
+name: healr_env
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies: 
+  - git=2.45.2
+  - r-base=4.3
+  - r-devtools=2.4.5

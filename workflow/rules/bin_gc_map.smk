@@ -1,28 +1,28 @@
 rule define_bins:
     input:
-        assembly=EAGLE-RC.get_assembly(PROGENITORS),
+        lambda wildcards: EAGLE_RC.get_assembly(wildcards.progenitor),
     output:
-        bin_bed="results/bin_information/{progenitor}/{progenitor}_"+f"{BIN_SIZE}_bins.bed",
+        bin_bed="results/healr/input_dir/progenitors/{progenitor}/{progenitor}_"+f"{BIN_SIZE}_bins.bed",
     log:
-        "results/logs/bin_information/define_bins_{progenitor}.log",
+        "results/logs/bin_information/define_bins/{progenitor}.log",
     params:
         bin_size=f"{BIN_SIZE}",
     conda:
         "../envs/bins_gc_map.yaml"
     shell:
         """
-        samtools faidx {input.assembly} 
-        bedtools makewindows -g {input.assembly}.fai -w {params.bin_size} > {output.bin_bed}
+        samtools faidx {input} 
+        bedtools makewindows -g {input}.fai -w {params.bin_size} > {output.bin_bed}
         """
 
 rule count_gc:
     input:
-        assembly=EAGLE-RC.get_assembly(PROGENITORS),
-        bin_bed="results/bin_information/{progenitor}/{progenitor}_"+f"{BIN_SIZE}_bins.bed",
+        assembly=lambda wildcards: EAGLE_RC.get_assembly(wildcards.progenitor),
+        bin_bed="results/healr/input_dir/progenitors/{progenitor}/{progenitor}_"+f"{BIN_SIZE}_bins.bed",
     output:
-        gc_bed="results/bin_information/{progenitor}/{progenitor}_"+f"{BIN_SIZE}_gc.bed",
+        gc_bed="results/healr/input_dir/progenitors/{progenitor}/{progenitor}_"+f"{BIN_SIZE}_gc.bed",
     log:
-        "results/logs/bin_information/gc_content_{progenitor}.log",
+        "results/logs/bin_information/gc_content/{progenitor}.log",
     params:
         bin_size=f"{BIN_SIZE}",
     conda:
@@ -35,15 +35,14 @@ rule count_gc:
 
 rule compute_mappability:
     input:
-        assembly=EAGLE-RC.get_assembly(PROGENITORS),
-        bin_bed="results/bin_information/{progenitor}/{progenitor}_"+f"{BIN_SIZE}_bins.bed",
+        assembly=lambda wildcards: EAGLE_RC.get_assembly(wildcards.progenitor),
+        bin_bed="results/healr/input_dir/progenitors/{progenitor}/{progenitor}_"+f"{BIN_SIZE}_bins.bed",
         fastqc_out_dir="results/fastqc"
     output:
-        genmap_index_dir="results/genmap/index_dir"
+        genmap_index_dir="results/genmap/{progenitor}/index_dir"
     log:
-        "results/logs/bin_information/genmap_{progenitor}.log",
+        "results/logs/bin_information/genmap/{progenitor}.log",
     params:
-        genmap_indexed_assemblies=get_genmap_indexed_assemblies(PROGENITORS),
         bin_size=f"{BIN_SIZE}",
     conda:
         "../envs/bins_gc_map.yaml"
@@ -59,7 +58,7 @@ rule compute_mappability:
         genmap map -K $read_length -E 0 -I {output.genmap_index_dir} -O {output.genmap_index_dir} -bg
         
         genmap_bedgraph=$(find {output.genmap_index_dir} -name *.genmap.bedgraph)
-        mappa_bed="results/bin_information/{progenitor}/{progenitor}_${read_length}kmer_mappability.bed"
+        mappa_bed="results/healr/input_dir/progenitors/{progenitor}/{progenitor}_${read_length}kmer_mappability.bed"
         
         bedtools intersect -a {input.bin_bed} -b $genmap_bedgraph -wo > results/genmap/tmp.genmap.intersect.bed
         bash {workflow.basedir}/scripts/map_in_bins.sh {params.bin_size} results/genmap/tmp.genmap.intersect.bed results/genmap/.tmp.genmap.unsorted.bed

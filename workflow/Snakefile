@@ -35,22 +35,45 @@ else:
         f"ERROR: Unknown data type. Name the input directory after the data type: 'DNA' or 'WGBS'."
         )
 
-
 SAMPLES = os.listdir(f"{INPUT_DIR}/polyploids") 
 PROGENITORS = os.listdir(f"{INPUT_DIR}/progenitors") 
 
+random_sample = SAMPLES[0] # We assume data is either paired or unpaired.
+
+random_sample_dir = os.path.join(INPUT_DIR, "polyploids", random_sample)
+# Ensure it's a directory before listing files
+if os.path.isdir(random_sample_dir):
+    num_files = len(os.listdir(random_sample_dir))
+else:
+    raise ValueError(f"{random_sample_dir} is not a valid directory!")
+
+if num_files > 2:
+    raise ValueError(f"Too many files in {random_sample_dir} ({num_files} found). Expected at most 2.")
+
+IS_PAIRED = num_files == 2  
+
+eagle_config_values = {
+    "INPUT_DIR": f"{INPUT_DIR}"
+}
 
 ## Import modules 
-module EAGLE-RC:
+module EAGLE_RC:
     snakefile:
-        github("kenji-yt/snake-EAGLE-RC", path="workflow/Snakefile", tag="v0.1.0-alpha")
+        github("kenji-yt/snake-EAGLE-RC", path="workflow/Snakefile", tag="v0.1.1-alpha")
+    config: eagle_config_values
 
-use rule * from EAGLE-RC as eagle-rc_*
+use rule * from EAGLE_RC as eagle_rc_*
+
+
+genespace_config_values = {
+    "INPUT_DIR": f"{INPUT_DIR}"+"/progenitors"
+}
+
 
 module GENESPACE:
     snakefile:
-        github("kenji-yt/snake-GENESPACE", path="workflow/Snakefile", tag="v0.1.0-alpha")
-        config: INPUT=f"{INPUT_DIR}/progenitors"
+        github("kenji-yt/snake-GENESPACE", path="workflow/Snakefile", tag="v0.1.1-alpha")
+    config: genespace_config_values
 
 use rule * from GENESPACE as genespace_*
 
@@ -68,12 +91,10 @@ rule all:
 rule make_reproducibility_report:
     input:
         input_dir=f"{INPUT_DIR}",
-        multi_qc="results/MultiQC/multiqc_report.html"
+        multi_qc="results/MultiQC/multiqc_report.html",
+        healr_output="results/healr/stats"
     output:
         "results/reproducibility_report.txt"
     threads: workflow.cores
     shell:
         "bash {workflow.basedir}/scripts/make_reproducibility_report.sh {input.input_dir} {threads}"
-
-rule multi_qc:
-wwwwwwwwwww 

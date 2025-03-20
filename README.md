@@ -10,3 +10,4 @@ A Snakemake workflow for automated labelling of homoeologous exchanges (HE).
 Assumes all read files have the same read length (same sequencing experiment)
 Input desired bin size, else defaults to 10kb 
 Use config file to set healr parameters. Else, defaults to default behaviour. 
+We assume data is either paired or unpaired.

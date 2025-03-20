@@ -1,4 +1,79 @@
-# Main entrypoint of the workflow. 
-# Please follow the best practices: 
-# https://snakemake.readthedocs.io/en/stable/snakefiles/best_practices.html,
-# in particular regarding the standardized folder structure mentioned there. 
+## Check minimum Snakemake version
+
+from snakemake.utils import min_version
+
+min_version("6.0")
+
+## Import required libraries
+
+import os
+
+## Configuration check
+
+if len(config) == 0:
+    
+    sys.exit(
+        f"Please specify the path to the input directory with --config INPUT='path/to/input'."
+    )
+
+
+## Config
+
+INPUT_DIR = os.path.normpath(config["INPUT_DIR"])
+BIN_SIZE = config.get("BIN_SIZE", 10000)
+
+
+## Parse Input directory
+
+DATA_TYPE = os.path.basename(INPUT_DIR) # Assumes user named input directory after data type (DNA, RNA, WGBS) unless a config file is provided. 
+if DATA_TYPE=="DNA":
+    ALIGNER="bwa"
+elif DATA_TYPE=="WGBS":
+    ALIGNER="bismark"
+else:
+    sys.exit(
+        f"ERROR: Unknown data type. Name the input directory after the data type: 'DNA' or 'WGBS'."
+        )
+
+
+SAMPLES = os.listdir(f"{INPUT_DIR}/polyploids") 
+PROGENITORS = os.listdir(f"{INPUT_DIR}/progenitors") 
+
+
+## Import modules 
+module EAGLE-RC:
+    snakefile:
+        github("kenji-yt/snake-EAGLE-RC", path="workflow/Snakefile", tag="v0.1.0-alpha")
+
+use rule * from EAGLE-RC as eagle-rc_*
+
+module GENESPACE:
+    snakefile:
+        github("kenji-yt/snake-GENESPACE", path="workflow/Snakefile", tag="v0.1.0-alpha")
+        config: INPUT=f"{INPUT_DIR}/progenitors"
+
+use rule * from GENESPACE as genespace_*
+
+#Non-rule Python statements inside the module are also evaluated in that separate namespace. They are available in the module-defining workflow under the name of the module (e.g. here other_workflow.myfunction()
+
+
+### Rules ###
+
+include: "rules/bin_gc_map.smk"
+
+rule all:
+    input:
+        "results/reproducibility_reports/HEAL_reproducibility_report.txt"
+
+rule make_reproducibility_report:
+    input:
+        input_dir=f"{INPUT_DIR}",
+        multi_qc="results/MultiQC/multiqc_report.html"
+    output:
+        "results/reproducibility_report.txt"
+    threads: workflow.cores
+    shell:
+        "bash {workflow.basedir}/scripts/make_reproducibility_report.sh {input.input_dir} {threads}"
+
+rule multi_qc:
+wwwwwwwwwww 

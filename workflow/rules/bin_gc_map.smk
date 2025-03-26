@@ -33,35 +33,42 @@ rule count_gc:
         """
 
 
+def get_all_fastqc_files(wildcards):
+
+    read_files = ["results/fastqc/" + read_path + "_fastqc.zip" for read_path in all_read_paths]
+
+    return read_files
+
+
 rule compute_mappability:
     input:
+        get_all_fastqc_files,
         assembly=lambda wildcards: EAGLE_RC.get_assembly(wildcards.progenitor),
         bin_bed="results/healr/input_dir/progenitors/{progenitor}/{progenitor}_"+f"{BIN_SIZE}_bins.bed",
-        fastqc_out_dir="results/fastqc"
     output:
-        genmap_index_dir="results/genmap/{progenitor}/index_dir"
+        genmap_index_dir=directory("results/genmap/{progenitor}/index_dir")
     log:
         "results/logs/bin_information/genmap/{progenitor}.log",
     params:
         bin_size=f"{BIN_SIZE}",
     conda:
         "../envs/bins_gc_map.yaml"
-    shell:
+    shell: # Assumes longest read is the read length.
         """
-        fastqc_zip_dir=$(find {input.fastqc_out_dir} -type f -name "*_fastqc.zip" | head -n 1)
-        unzip $fastqc_zip_dir -d results/genmap/tmp
-        read_length=$(find results/genmap/tmp -type f -name "fastqc_data.txt" | grep "Sequence length" | awk '{print $3}')
+        fastqc_zip_file=$(find "results/fastqc/" -type f -name "*_fastqc.zip" | head -n 1)
+        unzip ${{fastqc_zip_file}} -d results/genmap/tmp 
+        read_length=$(find results/genmap/tmp -type f -name "fastqc_data.txt" | xargs -I{{}} grep "Sequence length" {{}} | awk '{{print $3}}' | awk -F'-' '{{print $2}}')
         rm -r results/genmap/tmp
 
         
         genmap index -F {input.assembly} -I {output.genmap_index_dir}
-        genmap map -K $read_length -E 0 -I {output.genmap_index_dir} -O {output.genmap_index_dir} -bg
+        genmap map -K ${{read_length}} -E 0 -I {output.genmap_index_dir} -O {output.genmap_index_dir} -bg
         
         genmap_bedgraph=$(find {output.genmap_index_dir} -name *.genmap.bedgraph)
-        mappa_bed="results/healr/input_dir/progenitors/{progenitor}/{progenitor}_${read_length}kmer_mappability.bed"
+        mappa_bed="results/healr/input_dir/progenitors/{wildcards.progenitor}/{wildcards.progenitor}_${{read_length}}kmer_mappability.bed"
         
         bedtools intersect -a {input.bin_bed} -b $genmap_bedgraph -wo > results/genmap/tmp.genmap.intersect.bed
         bash {workflow.basedir}/scripts/map_in_bins.sh {params.bin_size} results/genmap/tmp.genmap.intersect.bed results/genmap/.tmp.genmap.unsorted.bed
-        bedtools sort -i results/genmap/.tmp.genmap.unsorted.bed > ${mappa_bed}
-        rm results/genmap/.tmp/genmap.*
+        bedtools sort -i results/genmap/.tmp.genmap.unsorted.bed > ${{mappa_bed}}
+        rm results/genmap/tmp.genmap.*
         """

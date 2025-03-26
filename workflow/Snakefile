@@ -7,13 +7,15 @@ min_version("6.0")
 ## Import required libraries
 
 import os
+import glob
+import re
 
 ## Configuration check
 
 if len(config) == 0:
     
     sys.exit(
-        f"Please specify the path to the input directory with --config INPUT='path/to/input'."
+        f"Please specify the path to the input directory with --config INPUT_DIR='path/to/input_directory'."
     )
 
 
@@ -25,20 +27,23 @@ BIN_SIZE = config.get("BIN_SIZE", 10000)
 
 ## Parse Input directory
 
+INPUT_DIR = os.path.normpath(config["INPUT_DIR"])
 DATA_TYPE = os.path.basename(INPUT_DIR) # Assumes user named input directory after data type (DNA, RNA, WGBS) unless a config file is provided. 
 if DATA_TYPE=="DNA":
     ALIGNER="bwa"
+elif DATA_TYPE=="RNA":
+    ALIGNER="star"
 elif DATA_TYPE=="WGBS":
     ALIGNER="bismark"
 else:
-    sys.exit(
-        f"ERROR: Unknown data type. Name the input directory after the data type: 'DNA' or 'WGBS'."
-        )
+    error_msg=f"ERROR: Unknown data type. Name the input directory after the data type: 'DNA', 'RNA' or 'WGBS'."
+    raise ValueError(error_msg)
+
 
 SAMPLES = os.listdir(f"{INPUT_DIR}/polyploids") 
 PROGENITORS = os.listdir(f"{INPUT_DIR}/progenitors") 
 
-random_sample = SAMPLES[0] # We assume data is either paired or unpaired.
+random_sample = SAMPLES[0] # We assume data is either entirely paired or unpaired.
 
 random_sample_dir = os.path.join(INPUT_DIR, "polyploids", random_sample)
 # Ensure it's a directory before listing files
@@ -50,51 +55,90 @@ else:
 if num_files > 2:
     raise ValueError(f"Too many files in {random_sample_dir} ({num_files} found). Expected at most 2.")
 
-IS_PAIRED = num_files == 2  
+if num_files == 2:
+    IS_PAIRED = "TRUE"
+else:
+    IS_PAIRED = "FALSE"
 
 eagle_config_values = {
     "INPUT_DIR": f"{INPUT_DIR}"
 }
 
+
+
+
+# get all read files
+accepted_read_patterns = [
+        f"{INPUT_DIR}/polyploids/**/*.fastq",
+        f"{INPUT_DIR}/polyploids/**/*.fasta",
+        f"{INPUT_DIR}/polyploids/**/*.fna",
+        f"{INPUT_DIR}/polyploids/**/*.fq",
+        f"{INPUT_DIR}/polyploids/**/*.fa",
+        f"{INPUT_DIR}/polyploids/**/*.fastq.gz",
+        f"{INPUT_DIR}/polyploids/**/*.fasta.gz",
+        f"{INPUT_DIR}/polyploids/**/*.fna.gz",
+        f"{INPUT_DIR}/polyploids/**/*.fq.gz",
+        f"{INPUT_DIR}/polyploids/**/*.fa.gz",
+    ]
+all_read_paths = [] 
+for pattern in accepted_read_patterns:
+        for file in glob.glob(pattern, recursive=True):
+            basename = os.path.basename(file)  
+            parent_dir = os.path.basename(os.path.dirname(file))  
+            all_read_paths.append(os.path.join(parent_dir, basename))
+
+
+### Make wildcard constraints ###
+import re
+sample_regex = "|".join(re.escape(sample) for sample in SAMPLES)
+progenitor_regex = "|".join(re.escape(progenitor) for progenitor in PROGENITORS)
+
+wildcard_constraints: # limit the value of these wildcards to directory names 
+    sample = sample_regex,
+    progenitor = progenitor_regex
+
+
 ## Import modules 
 module EAGLE_RC:
-    snakefile:
-        github("kenji-yt/snake-EAGLE-RC", path="workflow/Snakefile", tag="v0.1.1-alpha")
+    snakefile: # CHANGE REPRODUCIBILITY REPORT IF CHANGING THE TAG
+        github("kenji-yt/snake-EAGLE-RC", path="workflow/Snakefile", branch="main") # ,tag="v0.1.1-alpha") Put back tag after 
     config: eagle_config_values
 
-use rule * from EAGLE_RC as eagle_rc_*
+use rule * from EAGLE_RC exclude all as eagle_rc_*
 
+use rule read_sorting from EAGLE_RC as eagle_rc_read_sorting with:
+        conda:
+            f"{workflow.basedir}/envs/read_sorting.yaml"
 
 genespace_config_values = {
     "INPUT_DIR": f"{INPUT_DIR}"+"/progenitors"
 }
 
-
 module GENESPACE:
-    snakefile:
-        github("kenji-yt/snake-GENESPACE", path="workflow/Snakefile", tag="v0.1.1-alpha")
+    snakefile: # CHANGE REPRODUCIBILITY REPORT IF CHANGING THE TAG
+        github("kenji-yt/snake-GENESPACE", path="workflow/Snakefile", branch="main")#, tag="v0.1.1-alpha")
     config: genespace_config_values
 
-use rule * from GENESPACE as genespace_*
-
-#Non-rule Python statements inside the module are also evaluated in that separate namespace. They are available in the module-defining workflow under the name of the module (e.g. here other_workflow.myfunction()
+use rule * from GENESPACE exclude all as genespace_* 
 
 
 ### Rules ###
-
 include: "rules/bin_gc_map.smk"
+include: "rules/healr_analysis.smk"
 
 rule all:
     input:
-        "results/reproducibility_reports/HEAL_reproducibility_report.txt"
+       "results/HEAL_reproducibility_report.txt"
 
 rule make_reproducibility_report:
     input:
         input_dir=f"{INPUT_DIR}",
         multi_qc="results/MultiQC/multiqc_report.html",
         healr_output="results/healr/stats"
+        snake_genespace_report="results/snake_GENESPACE_reproducibility_report.txt",
+        snake_eagle_rc_report="results/snake_EAGLE_RC_reproducibility_report.txt"
     output:
-        "results/reproducibility_report.txt"
+        "results/HEAL_reproducibility_report.txt"
     threads: workflow.cores
     shell:
-        "bash {workflow.basedir}/scripts/make_reproducibility_report.sh {input.input_dir} {threads}"
+        "bash {workflow.basedir}/scripts/make_reproducibility_report.sh {input.input_dir} {} {threads}"

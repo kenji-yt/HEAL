@@ -8,12 +8,13 @@ if (!requireNamespace("healr", quietly = TRUE))
 library(healr)
 
 input_directory <- snakemake@params[["input_dir"]]
-is_paired <- snakemake@params[["is_paired"]]
+is_paired <- as.logical(snakemake@params[["is_paired"]])
 genespace_directory <- snakemake@params[["genespace_dir"]]
 num_threads <- snakemake@threads
 
 plot_out_dir <- paste0(dirname(input_directory),"/figures")
 stats_out_dir <- paste0(dirname(input_directory),"/stats")
+
 
 count_list <- count_heal_data(input_dir = input_directory,
                 n_threads= num_threads,
@@ -46,5 +47,8 @@ summary_aln <- summarize_aln(alignment = alignment_list,
 # Here I need to make a function to save files. Make functions to save alignments and CN and counts too?
 dir.create(stats_out_dir)
 write.table(summary_aln[[1]]$total_summary_dt,
-            file = paste0(stats_out_dir, "/table.csv"))
+            file = paste0(stats_out_dir, "/table.csv"),
+            row.names = FALSE,
+            col.names = TRUE,
+            quote = FALSE)
 

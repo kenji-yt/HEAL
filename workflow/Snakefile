@@ -134,7 +134,7 @@ rule make_reproducibility_report:
     input:
         input_dir=f"{INPUT_DIR}",
         multi_qc="results/MultiQC/multiqc_report.html",
-        healr_output="results/healr/stats"
+        healr_output="results/healr/stats",
         snake_genespace_report="results/snake_GENESPACE_reproducibility_report.txt",
         snake_eagle_rc_report="results/snake_EAGLE_RC_reproducibility_report.txt"
     output:

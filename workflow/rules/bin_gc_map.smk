@@ -70,5 +70,5 @@ rule compute_mappability:
         bedtools intersect -a {input.bin_bed} -b $genmap_bedgraph -wo > results/genmap/tmp.genmap.intersect.bed
         bash {workflow.basedir}/scripts/map_in_bins.sh {params.bin_size} results/genmap/tmp.genmap.intersect.bed results/genmap/.tmp.genmap.unsorted.bed
         bedtools sort -i results/genmap/.tmp.genmap.unsorted.bed > ${{mappa_bed}}
-        rm results/genmap/tmp.genmap.*
+        #rm results/genmap/tmp.genmap.*
         """

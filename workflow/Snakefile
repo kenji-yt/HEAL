@@ -98,29 +98,6 @@ wildcard_constraints: # limit the value of these wildcards to directory names
     progenitor = progenitor_regex
 
 
-## Import modules 
-module EAGLE_RC:
-    snakefile: # CHANGE REPRODUCIBILITY REPORT IF CHANGING THE TAG
-        github("kenji-yt/snake-EAGLE-RC", path="workflow/Snakefile", branch="main") # ,tag="v0.1.1-alpha") Put back tag after 
-    config: eagle_config_values
-
-use rule * from EAGLE_RC exclude all as eagle_rc_*
-
-use rule read_sorting from EAGLE_RC as eagle_rc_read_sorting with:
-        conda:
-            f"{workflow.basedir}/envs/read_sorting.yaml"
-
-genespace_config_values = {
-    "INPUT_DIR": f"{INPUT_DIR}"+"/progenitors"
-}
-
-module GENESPACE:
-    snakefile: # CHANGE REPRODUCIBILITY REPORT IF CHANGING THE TAG
-        github("kenji-yt/snake-GENESPACE", path="workflow/Snakefile", branch="main")#, tag="v0.1.1-alpha")
-    config: genespace_config_values
-
-use rule * from GENESPACE exclude all as genespace_* 
-
 
 ### Rules ###
 include: "rules/bin_gc_map.smk"
@@ -141,4 +118,30 @@ rule make_reproducibility_report:
         "results/HEAL_reproducibility_report.txt"
     threads: workflow.cores
     shell:
-        "bash {workflow.basedir}/scripts/make_reproducibility_report.sh {input.input_dir} {} {threads}"
+        "bash {workflow.basedir}/scripts/make_HEAL_reproducibility_report.sh {input.input_dir} {threads}"
+
+
+
+### Import modules ###
+ 
+module EAGLE_RC:
+    snakefile: # CHANGE REPRODUCIBILITY REPORT IF CHANGING THE TAG
+        github("kenji-yt/snake-EAGLE-RC", path="workflow/Snakefile", branch="main") # ,tag="v0.1.1-alpha") Put back tag after 
+    config: eagle_config_values
+
+use rule * from EAGLE_RC as eagle_rc_*
+# SOMEHOW EAGLE RC takes precendent on everything........ kisorma
+use rule read_sorting from EAGLE_RC as eagle_rc_read_sorting with:
+        conda:
+            f"{workflow.basedir}/envs/read_sorting.yaml"
+
+genespace_config_values = {
+    "INPUT_DIR": f"{INPUT_DIR}"+"/progenitors"
+}
+
+module GENESPACE:
+    snakefile: # CHANGE REPRODUCIBILITY REPORT IF CHANGING THE TAG
+        github("kenji-yt/snake-GENESPACE", path="workflow/Snakefile", branch="main")#, tag="v0.1.1-alpha")
+    config: genespace_config_values
+
+use rule * from GENESPACE as genespace_* 

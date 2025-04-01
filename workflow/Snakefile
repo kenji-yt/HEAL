@@ -130,10 +130,7 @@ module EAGLE_RC:
     config: eagle_config_values
 
 use rule * from EAGLE_RC as eagle_rc_*
-# SOMEHOW EAGLE RC takes precendent on everything........ kisorma
-use rule read_sorting from EAGLE_RC as eagle_rc_read_sorting with:
-        conda:
-            f"{workflow.basedir}/envs/read_sorting.yaml"
+
 
 genespace_config_values = {
     "INPUT_DIR": f"{INPUT_DIR}"+"/progenitors"

@@ -33,16 +33,9 @@ rule count_gc:
         """
 
 
-def get_all_fastqc_files(wildcards):
-
-    read_files = ["results/fastqc/" + read_path + "_fastqc.zip" for read_path in all_read_paths]
-
-    return read_files
-
-
 rule compute_mappability:
     input:
-        get_all_fastqc_files,
+        random_read_file=os.path.join(f"{INPUT_DIR}/polyploids/", all_read_paths[0]),
         assembly=lambda wildcards: EAGLE_RC.get_assembly(wildcards.progenitor),
         bin_bed="results/healr/input_dir/progenitors/{progenitor}/{progenitor}_"+f"{BIN_SIZE}_bins.bed",
     output:
@@ -53,12 +46,19 @@ rule compute_mappability:
         bin_size=f"{BIN_SIZE}",
     conda:
         "../envs/bins_gc_map.yaml"
-    shell: # Assumes longest read is the read length.
+    shell: # Assumes all short read files have same length of reads
         """
-        fastqc_zip_file=$(find "results/fastqc/" -type f -name "*_fastqc.zip" | head -n 1)
-        unzip ${{fastqc_zip_file}} -d results/genmap/tmp_{wildcards.progenitor}/
-        read_length=$(find results/genmap/tmp_{wildcards.progenitor}/ -type f -name "fastqc_data.txt" | xargs -I{{}} grep "Sequence length" {{}} | awk '{{print $3}}' | awk -F'-' '{{print $2}}')
-        rm -r results/genmap/tmp_{wildcards.progenitor}/
+        if [[ {input.random_read_file} == *.gz ]]; then
+            read_file="results/genmap/tmp_{wildcards.progenitor}/$(basename {input.random_read_file} .gz)"
+            mkdir results/genmap/tmp_{wildcards.progenitor}
+            gunzip -c {input.random_read_file} > ${{read_file}}
+        else
+            read_file={input.random_read_file} 
+        fi
+        
+        read_length=$(head -1000 ${{read_file}} | seqtk seq -A \
+        | awk '{{if(NR%2==0) print length($0)}}' | sort | uniq -c \
+        | sort -nr | head -1 | awk '{{print $2}}')
 
         
         mkdir -p $(dirname {output.genmap_index_dir})

@@ -11,4 +11,4 @@ Assumes all read files have the same read length (same sequencing experiment)
 Input desired bin size, else defaults to 10kb 
 Use config file to set healr parameters. Else, defaults to default behaviour. 
 We assume data is either paired or unpaired.
-Assumes longest read is the read length.
+Assumes all short read files have same length of reads

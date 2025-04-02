@@ -56,19 +56,20 @@ rule compute_mappability:
     shell: # Assumes longest read is the read length.
         """
         fastqc_zip_file=$(find "results/fastqc/" -type f -name "*_fastqc.zip" | head -n 1)
-        unzip ${{fastqc_zip_file}} -d results/genmap/tmp 
-        read_length=$(find results/genmap/tmp -type f -name "fastqc_data.txt" | xargs -I{{}} grep "Sequence length" {{}} | awk '{{print $3}}' | awk -F'-' '{{print $2}}')
-        rm -r results/genmap/tmp
+        unzip ${{fastqc_zip_file}} -d results/genmap/tmp_{wildcards.progenitor}/
+        read_length=$(find results/genmap/tmp_{wildcards.progenitor}/ -type f -name "fastqc_data.txt" | xargs -I{{}} grep "Sequence length" {{}} | awk '{{print $3}}' | awk -F'-' '{{print $2}}')
+        rm -r results/genmap/tmp_{wildcards.progenitor}/
 
         
+        mkdir -p $(dirname {output.genmap_index_dir})
         genmap index -F {input.assembly} -I {output.genmap_index_dir}
         genmap map -K ${{read_length}} -E 0 -I {output.genmap_index_dir} -O {output.genmap_index_dir} -bg
         
         genmap_bedgraph=$(find {output.genmap_index_dir} -name *.genmap.bedgraph)
-        mappa_bed="results/healr/input_dir/progenitors/{wildcards.progenitor}/{wildcards.progenitor}_${{read_length}}kmer_mappability.bed"
+        mappa_bed="results/healr/input_dir/progenitors/{wildcards.progenitor}/{wildcards.progenitor}_${{read_length}}kmer_{params.bin_size}_mappability.bed"
         
-        bedtools intersect -a {input.bin_bed} -b $genmap_bedgraph -wo > results/genmap/tmp.genmap.intersect.bed
-        bash {workflow.basedir}/scripts/map_in_bins.sh {params.bin_size} results/genmap/tmp.genmap.intersect.bed results/genmap/.tmp.genmap.unsorted.bed
-        bedtools sort -i results/genmap/.tmp.genmap.unsorted.bed > ${{mappa_bed}}
-        #rm results/genmap/tmp.genmap.*
+        bedtools intersect -a {input.bin_bed} -b $genmap_bedgraph -wo > results/genmap/tmp_{wildcards.progenitor}.genmap.intersect.bed
+        bash {workflow.basedir}/scripts/map_in_bins.sh {params.bin_size} results/genmap/tmp_{wildcards.progenitor}.genmap.intersect.bed results/genmap/tmp_{wildcards.progenitor}.genmap.unsorted.bed
+        bedtools sort -i results/genmap/tmp_{wildcards.progenitor}.genmap.unsorted.bed > ${{mappa_bed}}
+        rm -r results/genmap/tmp_{wildcards.progenitor}*
         """

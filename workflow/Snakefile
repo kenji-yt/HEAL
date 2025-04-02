@@ -116,9 +116,11 @@ rule make_reproducibility_report:
         snake_eagle_rc_report="results/snake_EAGLE_RC_reproducibility_report.txt"
     output:
         "results/HEAL_reproducibility_report.txt"
-    threads: workflow.cores
+    params:
+        cores=workflow.cores
+    threads:1
     shell:
-        "bash {workflow.basedir}/scripts/make_HEAL_reproducibility_report.sh {input.input_dir} {threads}"
+        "bash {workflow.basedir}/scripts/make_HEAL_reproducibility_report.sh {input.input_dir} {params.cores}"
 
 
 

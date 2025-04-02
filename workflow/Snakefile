@@ -25,9 +25,9 @@ INPUT_DIR = os.path.normpath(config["INPUT_DIR"])
 BIN_SIZE = config.get("BIN_SIZE", 10000)
 
 
+
 ## Parse Input directory
 
-INPUT_DIR = os.path.normpath(config["INPUT_DIR"])
 DATA_TYPE = os.path.basename(INPUT_DIR) # Assumes user named input directory after data type (DNA, RNA, WGBS) unless a config file is provided. 
 if DATA_TYPE=="DNA":
     ALIGNER="bwa"
@@ -59,11 +59,6 @@ if num_files == 2:
     IS_PAIRED = "TRUE"
 else:
     IS_PAIRED = "FALSE"
-
-eagle_config_values = {
-    "INPUT_DIR": f"{INPUT_DIR}"
-}
-
 
 
 
@@ -126,6 +121,11 @@ rule make_reproducibility_report:
 
 ### Import modules ###
  
+eagle_config_values = {
+    "INPUT_DIR": f"{INPUT_DIR}",
+    "SOFT_CLIP": True
+}
+
 module EAGLE_RC:
     snakefile: # CHANGE REPRODUCIBILITY REPORT IF CHANGING THE TAG
         github("kenji-yt/snake-EAGLE-RC", path="workflow/Snakefile", branch="main") # ,tag="v0.1.1-alpha") Put back tag after 

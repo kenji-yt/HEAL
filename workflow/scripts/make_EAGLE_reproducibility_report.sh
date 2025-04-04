@@ -100,6 +100,7 @@ eagle_version=$(git -C results/eagle_rc/eagle_intallation describe --tags --abbr
 echo "eagle-rc=${eagle_version}" >> "${report}"
 
 echo "fastqc=0.12.1" >> "${report}"
+echo "fastp=0.24.0" >> "${report}"
 if [ $(basename "${input_dir}")=="RNA" ]; then
     echo "star=2.7.11b" >> "${report}"
 elif [ $(basename "${input_dir}")=="DNA" ]; then

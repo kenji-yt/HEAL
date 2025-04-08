@@ -125,7 +125,7 @@ rule make_reproducibility_report:
 ## EAGLE-RC 
 # get the scripts
 os.makedirs("results/eagle_rc/scripts", exist_ok=True)
-eagle_rc_url = 'https://raw.githubusercontent.com/kenji-yt/snake-EAGLE-RC/workflow/scripts/make_EAGLE_reproducibility_report.sh'
+eagle_rc_url = 'https://raw.githubusercontent.com/kenji-yt/snake-EAGLE-RC/main/workflow/scripts/make_EAGLE_reproducibility_report.sh'
 eagle_rc_output_path = 'results/eagle_rc/scripts/make_EAGLE_reproducibility_report.sh'
 
 response_eagle_rc = requests.get(eagle_rc_url)
@@ -154,8 +154,8 @@ use rule * from EAGLE_RC as eagle_rc_*
 # get the scripts
 os.makedirs("results/genespace/scripts", exist_ok=True)
 
-genespace_parse_url = 'https://raw.githubusercontent.com/kenji-yt/snake-GENESPACE/workflow/scripts/parse_genespace_input.sh'
-genespace_parse_output_path = 'results/eagle_rc/scripts/parse_genespace_input.sh'
+genespace_parse_url = 'https://raw.githubusercontent.com/kenji-yt/snake-GENESPACE/main/workflow/scripts/parse_genespace_input.sh'
+genespace_parse_output_path = 'results/genespace/scripts/parse_genespace_input.sh'
 response_parse_genespace = requests.get(genespace_parse_url)
 if response_parse_genespace.status_code == 200:
     with open(genespace_parse_output_path, 'wb') as f:
@@ -163,17 +163,8 @@ if response_parse_genespace.status_code == 200:
 else:
     raise ValueError(f"Failed to download genespace parsing script. Status code: {response_parse_genespace.status_code}")
 
-genespace_run_url = 'https://raw.githubusercontent.com/kenji-yt/snake-GENESPACE/workflow/scripts/run_genespace.R'
-genespace_run_output_path = 'results/eagle_rc/scripts/run_genespace.R'
-response_run_genespace = requests.get(genespace_run_url)
-if response_run_genespace.status_code == 200:
-    with open(genespace_run_output_path, 'wb') as f:
-        f.write(response_run_genespace.content)
-else:
-    raise ValueError(f"Failed to download genespace run script. Status code: {response_run_genespace.status_code}")
-
-genespace_reprod_url = 'https://raw.githubusercontent.com/kenji-yt/snake-GENESPACE/workflow/scripts/make_GENESPACE_reproducibility_report.sh'
-genespace_reprod_output_path = 'results/eagle_rc/scripts/make_GENESPACE_reproducibility_report.sh'
+genespace_reprod_url = 'https://raw.githubusercontent.com/kenji-yt/snake-GENESPACE/main/workflow/scripts/make_GENESPACE_reproducibility_report.sh'
+genespace_reprod_output_path = 'results/genespace/scripts/make_GENESPACE_reproducibility_report.sh'
 response_reprod_genespace = requests.get(genespace_reprod_url)
 if response_reprod_genespace.status_code == 200:
     with open(genespace_reprod_output_path, 'wb') as f:

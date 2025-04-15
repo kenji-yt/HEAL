@@ -138,7 +138,7 @@ else:
 
 eagle_config_values = {
     "INPUT_DIR": f"{INPUT_DIR}",
-    "SOFT_CLIP": True,
+    "SOFT_CLIP": False,
     "SCRIPTS_DIR": "results/eagle_rc/scripts"
 }
 

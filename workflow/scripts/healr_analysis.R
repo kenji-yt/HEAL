@@ -2,8 +2,7 @@ sink(snakemake@log[[1]], split=TRUE, append=TRUE)
 
 library(devtools)
 
-if (!requireNamespace("healr", quietly = TRUE))
-    devtools::install_github("kenji-yt/healr", quiet = TRUE)
+devtools::install_github("kenji-yt/healr", quiet = TRUE)
 
 library(healr)
 

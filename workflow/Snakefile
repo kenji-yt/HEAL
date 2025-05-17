@@ -25,7 +25,7 @@ if len(config) == 0:
 INPUT_DIR = os.path.normpath(config["INPUT_DIR"])
 BIN_SIZE = config.get("BIN_SIZE", 10000)
 FILTER = config.get("FILTER", True)
-if not (value is True or value is False or (isinstance(value, str) and len(value) == 1)):
+if not (FILTER is True or FILTER is False or (isinstance(FILTER, str) and len(FILTER) == 1)):
     raise ValueError("Error: FILTER must be either True, False or flags to pass to fastp.")
 SOFT_CLIP = config.get("SOFT_CLIP", False)
 if not isinstance(SOFT_CLIP, bool):

@@ -27,6 +27,13 @@ BIN_SIZE = config.get("BIN_SIZE", 10000)
 FILTER = config.get("FILTER", True)
 if not (FILTER is True or FILTER is False or (isinstance(FILTER, str) and len(FILTER) == 1)):
     raise ValueError("Error: FILTER must be either True, False or flags to pass to fastp.")
+if isinstance(FILTER, str):
+    FILTER_PARAMS = FILTER
+    FILTER = True
+elif FILTER is True:
+    FILTER_PARAMS = "Default"
+elif FILTER is False:
+    FILTER_PARAMS = "No filtering"
 SOFT_CLIP = config.get("SOFT_CLIP", False)
 if not isinstance(SOFT_CLIP, bool):
     raise ValueError("Error: SOFT_CLIP must be either True or False.")
@@ -115,7 +122,7 @@ rule make_reproducibility_report:
     params:
         cores=workflow.cores,
         bin_size=BIN_SIZE,
-        trimming=TRIMMING,
+        filtering=FILTER_PARAMS,
         soft_clip=SOFT_CLIP,
     threads:1
     shell:
@@ -123,7 +130,7 @@ rule make_reproducibility_report:
         bash {workflow.basedir}/scripts/make_HEAL_reproducibility_report.sh {input.input_dir} \
         {params.cores} \
         {params.bin_size} \
-        {params.trimming} \
+        {params.filtering} \
         {params.soft_clip}
         """
 

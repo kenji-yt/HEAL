@@ -5,7 +5,7 @@
 input_dir=$1
 n_cores=$2
 bin_size=$3
-trimming=$4
+filtering_params=$4
 softclipping=$5
 
 snake_eagle_rc_report=results/snake_EAGLE_RC_reproducibility_report.txt

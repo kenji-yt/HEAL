@@ -60,7 +60,7 @@ rule compute_mappability:
             {
                 head -1000 ${{read_file}} | seqtk seq -A \
                 | awk '{{if(NR%2==0) print length($0)}}' | sort | uniq -c \
-                | sort -nr | head -1 | awk '{{print $2}}') 
+                | sort -nr | head -1 | awk '{{print $2}}' 
             } 2> {log}
         )
 

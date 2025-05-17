@@ -57,11 +57,11 @@ rule compute_mappability:
         fi
         
         read_length=$(
-            {
+            {{
                 head -1000 ${{read_file}} | seqtk seq -A \
                 | awk '{{if(NR%2==0) print length($0)}}' | sort | uniq -c \
                 | sort -nr | head -1 | awk '{{print $2}}' 
-            } 2> {log}
+            }} 2> {log}
         )
 
         

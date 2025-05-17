@@ -24,22 +24,22 @@ if len(config) == 0:
 
 INPUT_DIR = os.path.normpath(config["INPUT_DIR"])
 BIN_SIZE = config.get("BIN_SIZE", 10000)
+FILTER = config.get("FILTER", True)
+if not (value is True or value is False or (isinstance(value, str) and len(value) == 1)):
+    raise ValueError("Error: FILTER must be either True, False or flags to pass to fastp.")
+SOFT_CLIP = config.get("SOFT_CLIP", False)
+if not isinstance(SOFT_CLIP, bool):
+    raise ValueError("Error: SOFT_CLIP must be either True or False.")
 
 
 
 ## Parse Input directory
 
 DATA_TYPE = os.path.basename(INPUT_DIR) # Assumes user named input directory after data type (DNA, RNA, WGBS) unless a config file is provided. 
-if DATA_TYPE=="DNA":
-    ALIGNER="bwa"
-elif DATA_TYPE=="RNA":
-    ALIGNER="star"
-elif DATA_TYPE=="WGBS":
-    ALIGNER="bismark"
-else:
+if DATA_TYPE not in {"DNA", "RNA", "WGBS"}:
     error_msg=f"ERROR: Unknown data type. Name the input directory after the data type: 'DNA', 'RNA' or 'WGBS'."
     raise ValueError(error_msg)
-
+    
 
 SAMPLES = os.listdir(f"{INPUT_DIR}/polyploids") 
 PROGENITORS = os.listdir(f"{INPUT_DIR}/progenitors") 
@@ -113,10 +113,19 @@ rule make_reproducibility_report:
     output:
         "results/HEAL_reproducibility_report.txt"
     params:
-        cores=workflow.cores
+        cores=workflow.cores,
+        bin_size=BIN_SIZE,
+        trimming=TRIMMING,
+        soft_clip=SOFT_CLIP,
     threads:1
     shell:
-        "bash {workflow.basedir}/scripts/make_HEAL_reproducibility_report.sh {input.input_dir} {params.cores}"
+        """
+        bash {workflow.basedir}/scripts/make_HEAL_reproducibility_report.sh {input.input_dir} \
+        {params.cores} \
+        {params.bin_size} \
+        {params.trimming} \
+        {params.soft_clip}
+        """
 
 
 
@@ -138,7 +147,8 @@ else:
 
 eagle_config_values = {
     "INPUT_DIR": f"{INPUT_DIR}",
-    "SOFT_CLIP": False,
+    "FILTER": FILTER,
+    "SOFT_CLIP": SOFT_CLIP,
     "SCRIPTS_DIR": "results/eagle_rc/scripts"
 }
 

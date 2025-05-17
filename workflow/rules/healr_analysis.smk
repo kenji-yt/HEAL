@@ -11,9 +11,9 @@ rule make_healr_polyploid_input_dir:
         '''
         for prog in {params.progenitor_list}; do
             out_dir="results/healr/input_dir/polyploids/{wildcards.sample}/${{prog}}/"
-            mkdir -p ${{out_dir}}
+            mkdir -p "${{out_dir}}" 2> "{log}"
             ref_bam=$(find results/eagle_rc/{wildcards.sample}/ -name *_classified_${{prog}}.ref.bam)
-            ln -s ../../../../../../${{ref_bam}} ${{out_dir}}
+            ln -s "../../../../../../${{ref_bam}}" "${{out_dir}}" 2> "{log}"
         done
         '''
 

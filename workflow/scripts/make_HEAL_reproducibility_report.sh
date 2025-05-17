@@ -4,6 +4,10 @@
 
 input_dir=$1
 n_cores=$2
+bin_size=$3
+trimming=$4
+softclipping=$5
+
 snake_eagle_rc_report=results/snake_EAGLE_RC_reproducibility_report.txt
 snake_genespace_report=results/snake_GENESPACE_reproducibility_report.txt
 report=results/HEAL_reproducibility_report.txt
@@ -16,10 +20,21 @@ echo "" >> "${report}"
 echo "" >> "${report}"
 echo "Reproducibility report for HEAL." >> "${report}"
 echo "Run date & time: ${CURRENT_DATETIME}" >> "${report}"
-echo "Number of allocated cores: ${n_cores}" >> "${report}" 
 echo "" >> "${report}"
 echo "" >> "${report}"
 
+echo "********************" >> "${report}"
+echo "*    Parameters    *" >> "${report}"
+echo "********************" >> "${report}"
+echo "" >> "${report}"
+echo "" >> "${report}"
+echo "Number of allocated cores: ${n_cores}" >> "${report}"
+echo "Input directory: ${input_dir}" >> "${report}"
+echo "Bin size: ${bin_size}" >> "${report}"
+echo "Filtering parameters: ${filtering_params}" >> "${report}"
+echo "Soft clipping: ${softclipping}" >> "${report}"
+echo "" >> "${report}"
+echo "" >> "${report}"
 
 echo "********************" >> "${report}"
 echo "* Operating System *" >> "${report}"

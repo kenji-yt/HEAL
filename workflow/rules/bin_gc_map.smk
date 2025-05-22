@@ -64,7 +64,7 @@ rule compute_mappability:
             {{
                 seqkit head -n 500 "${{random_read_file}}" \
                 | seqkit fx2tab -l \
-                | awk '{{print $4}}' \
+                | awk '{{print $NF}}' \
                 | sort | uniq -c | sort -nr | head -1 \
                 | awk '{{print $2}}' 
             }} 2>&1 | tee -a "{log}"

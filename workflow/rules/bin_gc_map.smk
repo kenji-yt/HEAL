@@ -32,10 +32,20 @@ rule count_gc:
         bedtools nuc -fi {input.assembly} -bed {input.bin_bed} > {output} 2> {log}
         """
 
+def get_random_read_file(filter):
+    
+    if filter == True:
+        polyploids=glob.glob(f"{INPUT_DIR}/polyploids/*")
+        random_sample_name=os.path.basename(polyploids[0])
+        random_file = f"results/fastp/{random_sample_name}/{random_sample_name}_R1_filtered.fastq"
+        return random_file
+    else:    
+        return os.path.join(f"{INPUT_DIR}/polyploids/", all_read_paths[0]),
+
 
 rule compute_mappability:
     input:
-        random_read_file=os.path.join(f"{INPUT_DIR}/polyploids/", all_read_paths[0]),
+        random_read_file=get_random_read_file(FILTER),
         assembly=lambda wildcards: EAGLE_RC.get_assembly(wildcards.progenitor),
         bin_bed="results/healr/input_dir/progenitors/{progenitor}/{progenitor}_"+f"{BIN_SIZE}_bins.bed",
     output:
@@ -46,24 +56,21 @@ rule compute_mappability:
         bin_size=f"{BIN_SIZE}",
     conda:
         "../envs/bins_gc_map.yaml"
-    shell: # Assumes all short read files have same length of reads
+    shell:# Assumes all short read files have same length of reads
         """
-        if [[ "{input.random_read_file}" == *.gz ]]; then
-            read_file="results/genmap/tmp_{wildcards.progenitor}/$(basename {input.random_read_file} .gz)"
-            mkdir -p "results/genmap/tmp_{wildcards.progenitor}" 2>&1 | tee -a "{log}"
-            gunzip -c "{input.random_read_file}" > "${{read_file}}" 2>&1 | tee -a "{log}"
-        else
-            read_file="{input.random_read_file}"
-        fi
-        
+
+        random_read_file="{input.random_read_file}"
         read_length=$(
             {{
-                head -1000 "${{read_file}}" | seqtk seq -A \
-                | awk '{{if(NR%2==0) print length($0)}}' | sort | uniq -c \
-                | sort -nr | head -1 | awk '{{print $2}}' 
+                seqkit head -n 500 "${{random_read_file}}" \
+                | seqkit fx2tab -l \
+                | awk '{{print $4}}' \
+                | sort | uniq -c | sort -nr | head -1 \
+                | awk '{{print $2}}' 
             }} 2>&1 | tee -a "{log}"
         )
         
+        mkdir -p "results/genmap/tmp_{wildcards.progenitor}" 2>&1 | tee -a "{log}" 
         mkdir -p "$(dirname "{output.genmap_index_dir}")" 2>&1 | tee -a "{log}"
         genmap index -F "{input.assembly}" -I "{output.genmap_index_dir}" 2>&1 | tee -a "{log}"
         genmap map -K "${{read_length}}" -E 0 -I "{output.genmap_index_dir}" -O "{output.genmap_index_dir}" -bg 2>&1 | tee -a "{log}"

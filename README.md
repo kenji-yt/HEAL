@@ -14,3 +14,5 @@ We assume data is either paired or unpaired.
 Assumes all short read files have same length of reads
 
 If you wish to preserve reads that are softclipped in the bismark alignment, potentially to recover exact recombination breakpoints, you can do so by passing the config argument SOFT_CLIP=true. This will keep soft clipped reads in the alignment step (For which aligner??? Not both I think). In our experience this has not really worked but it could be done. For DNA seq data, softclipped reads are always allowed in bwa mem2 alignments. 
+
+Assumes all short read files have same length of reads

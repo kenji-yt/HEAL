@@ -88,7 +88,7 @@ echo "Tools used to define bins, count GC content and mappability:" >> "${report
 grep 'bedtools' workflow/envs/bins_gc_map.yaml >> "${report}"  
 grep 'samtools' workflow/envs/bins_gc_map.yaml >> "${report}"  
 grep 'genmap' workflow/envs/bins_gc_map.yaml >> "${report}"  
-grep 'seqtk' workflow/envs/bins_gc_map.yaml >> "${report}"  
+grep 'seqkit' workflow/envs/bins_gc_map.yaml >> "${report}"  
 echo "Tools used for healr:" >> "${report}"
 grep 'git' workflow/envs/healr.yaml >> "${report}"
 grep 'r-base' workflow/envs/healr.yaml >> "${report}"

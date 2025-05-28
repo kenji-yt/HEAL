@@ -37,7 +37,7 @@ def get_random_read_file(filter):
     if filter == True:
         polyploids=glob.glob(f"{INPUT_DIR}/polyploids/*")
         random_sample_name=os.path.basename(polyploids[0])
-        random_file = f"results/fastp/{random_sample_name}/{random_sample_name}_R1_filtered.fastq"
+        random_file = f"results/fastp/{random_sample_name}/{random_sample_name}_R1_filtered.fastq.gz"
         return random_file
     else:    
         return os.path.join(f"{INPUT_DIR}/polyploids/", all_read_paths[0]),

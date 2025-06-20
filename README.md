@@ -10,15 +10,15 @@ HEAL takes whole genome sequencing reads from allopolyploids and the genome asse
 
 The workflow can be summarized as follows:<br>
 - Reads are aligned to the appropriate subgenome and classified using [snake-EAGLE-RC](https://github.com/kenji-yt/snake-EAGLE-RC) (a snakemake workflow around [EAGLE-RC](https://github.com/tony-kuo/eagle?tab=readme-ov-file#eagle-rc)). For details see the README of snake-EAGLE-RC.<br>
-    - Syntenic anchors (high confidence collinear homeologs), which define regions of synteny and therefore recombination candidates, are identified using [GENESPACE](https://github.com/jtlovell/GENESPACE) (by importing the module [snake-GENESPACE](https://github.com/kenji-yt/snake-GENESPACE) which is a snakemake workflow facilitating GENESPACE analysis).<br>
-    - Bed files defining bins within the progenitor assemblies are created using [“bedtools makewindow”](https://github.com/arq5x/bedtools2). GC content is counted in these bins using “bedtools nuc”. Average per base mappability is computed in these bins using per base mappability obtained with [genmap](https://github.com/cpockrandt/genmap).<br>
-    - Classified bam files, synteny information and binned mappability and GC statistics are then fed into the R-package [healr](https://github.com/kenji-yt/healr). This R-package provides allopolyploid species functions to infer and combine copy numbers between subgenomes. It also has functions for plotting and summary statistics. In HEAL it is used to:<br>
-        - Count reads in bins using ([feature-counts](https://subread.sourceforge.net/featureCounts.html)).<br>
-        - Filter and normalize based on mappability and GC content.<br>
-        - Infer copy number using the Circular Binary Segmentation algorithm implemented in [DNAcopy](https://rdrr.io/bioc/DNAcopy/).<br>
-        - Assign a copy number to each synthenic anchor based on the bin it overlaps with.<br> 
-        - Plot the combined copy number along each subgenomes gene order.<br> 
-        - Compute and return genome wide and per-chromosome statistics regarding the distribution of anchor sets (groups of corresponding anchors from different subgenomes) in each copy number ratio.<br> 
+- Syntenic anchors (high confidence collinear homeologs), which define regions of synteny and therefore recombination candidates, are identified using [GENESPACE](https://github.com/jtlovell/GENESPACE) (by importing the module [snake-GENESPACE](https://github.com/kenji-yt/snake-GENESPACE) which is a snakemake workflow facilitating GENESPACE analysis).<br>
+- Bed files defining bins within the progenitor assemblies are created using [“bedtools makewindow”](https://github.com/arq5x/bedtools2). GC content is counted in these bins using “bedtools nuc”. Average per base mappability is computed in these bins using per base mappability obtained with [genmap](https://github.com/cpockrandt/genmap).<br>
+- Classified bam files, synteny information and binned mappability and GC statistics are then fed into the R-package [healr](https://github.com/kenji-yt/healr). This R-package provides allopolyploid species functions to infer and combine copy numbers between subgenomes. It also has functions for plotting and summary statistics. In HEAL it is used to:<br>
+    - Count reads in bins using ([feature-counts](https://subread.sourceforge.net/featureCounts.html)).<br>
+    - Filter and normalize based on mappability and GC content.<br>
+    - Infer copy number using the Circular Binary Segmentation algorithm implemented in [DNAcopy](https://rdrr.io/bioc/DNAcopy/).<br>
+    - Assign a copy number to each synthenic anchor based on the bin it overlaps with.<br> 
+    - Plot the combined copy number along each subgenomes gene order.<br> 
+    - Compute and return genome wide and per-chromosome statistics regarding the distribution of anchor sets (groups of corresponding anchors from different subgenomes) in each copy number ratio.<br> 
 
 ## Installation 
 

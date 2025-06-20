@@ -90,13 +90,13 @@ If you realize that the bin size is not appropriate and want to try another valu
 ## Output 
 
 Results will be written to a directory called "results" inside the HEAL directory. In this directory you will find the following files and directories:
-    - eagle_rc: Contains the eagle installation and one directory per sample with the eagle-rc results and a script used to produce these results.
-    - fastp (if FILTER='True'): Contains one directory per sample with filtered and trimmed read files and quality check reports. 
-    - qualimap: Contains one directory per sample containing the output of qualimap for every ".ref." bam files in the 'eagle_rc' directory. 
-    - bismark/bwa: Contains bam files of the reads aligned to each subgenome. 
-    - genespace: Contains a directory for MCScanX, a directory for scripts and 'run_dir' which contains the formated input data for GENESPACE as well as the results of the GENESPACE analysis. For more details see [GENESPACE](https://github.com/jtlovell/GENESPACE).
-    - genmap: Contains the output of genmap for each subgenome. 
-    - healr: Contains an input directory for healr ('input_dir') which can be used for further healr analyses. It also contains one directory called stats which has data tables  and one dire
-    - logs: Contains logs for each analysis.
-    - MultiQC: Contains the file "multiqc_report.html" which compiles qualimap and fastp reports.  
-    - snakemake_EAGLE_RC_reproducibility_report.txt: A text file with details about the input and output files and the tools and parameters used. 
+- eagle_rc: Contains the eagle installation and one directory per sample with the eagle-rc results and a script used to produce these results.
+- fastp (if FILTER='True'): Contains one directory per sample with filtered and trimmed read files and quality check reports. 
+- qualimap: Contains one directory per sample containing the output of qualimap for every ".ref." bam files in the 'eagle_rc' directory. 
+- bismark/bwa: Contains bam files of the reads aligned to each subgenome. 
+- genespace: Contains a directory for MCScanX, a directory for scripts and 'run_dir' which contains the formated input data for GENESPACE as well as the results of the GENESPACE analysis. For more details see [GENESPACE](https://github.com/jtlovell/GENESPACE).
+- genmap: Contains the output of genmap for each subgenome. 
+- healr: Contains an input directory for healr ('input_dir') which can be used for further healr analyses. It also contains one directory called stats which has data tables  and one dire
+- logs: Contains logs for each analysis.
+- MultiQC: Contains the file "multiqc_report.html" which compiles qualimap and fastp reports.  
+- snakemake_EAGLE_RC_reproducibility_report.txt: A text file with details about the input and output files and the tools and parameters used. 

@@ -44,6 +44,7 @@ rule healr_analysis:
     params:
         input_dir="results/healr/input_dir",
         is_paired=f"{IS_PAIRED}",
-        genespace_dir="results/genespace/run_dir"
+        genespace_dir="results/genespace/run_dir",
+        save_healr_lists=save_healr_lists,
     script:
         f"{workflow.basedir}/scripts/healr_analysis.R" 

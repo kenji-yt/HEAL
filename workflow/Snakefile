@@ -70,7 +70,7 @@ if num_files == 2:
 else:
     IS_PAIRED = "FALSE"
 
-if SAVE_HEALR_LIST == True:
+if SAVE_HEALR_LISTS == True:
     save_healr_lists = "TRUE"
 else:
     save_healr_lists = "FALSE"

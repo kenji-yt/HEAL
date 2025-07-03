@@ -62,7 +62,7 @@ rule compute_mappability:
         random_read_file="{input.random_read_file}"
         read_length=$(
             {{
-                seqkit head -n 500 "${{random_read_file}}" \
+                seqkit head -n 1000 "${{random_read_file}}" \
                 | seqkit fx2tab -l \
                 | awk '{{print $NF}}' \
                 | sort | uniq -c | sort -nr | head -1 \
@@ -78,8 +78,8 @@ rule compute_mappability:
         genmap_bedgraph=$(find "{output.genmap_index_dir}" -name *.genmap.bedgraph)
         mappa_bed="results/healr/input_dir/progenitors/{wildcards.progenitor}/{wildcards.progenitor}_${{read_length}}kmer_{params.bin_size}_mappability.bed"
         
-        bedtools intersect -a "{input.bin_bed}" -b "${{genmap_bedgraph}}" -wo > "results/genmap/tmp_{wildcards.progenitor}.genmap.intersect.bed" 2>&1 | tee -a "{log}"
+        bedtools intersect -a "{input.bin_bed}" -b "${{genmap_bedgraph}}" -wo > "results/genmap/tmp_{wildcards.progenitor}.genmap.intersect.bed" 2>> tee -a "{log}"
         bash "{workflow.basedir}/scripts/map_in_bins.sh" "{params.bin_size}" "results/genmap/tmp_{wildcards.progenitor}.genmap.intersect.bed" "results/genmap/tmp_{wildcards.progenitor}.genmap.unsorted.bed" mkdir -p "$(dirname "{output.genmap_index_dir}")" 2>&1 | tee -a "{log}"
-        bedtools sort -i "results/genmap/tmp_{wildcards.progenitor}.genmap.unsorted.bed" > "${{mappa_bed}}" 2>&1 | tee -a "{log}"
+        bedtools sort -i "results/genmap/tmp_{wildcards.progenitor}.genmap.unsorted.bed" > "${{mappa_bed}}" 2>> tee -a "{log}"
         rm -r "results/genmap/tmp_{wildcards.progenitor}"* 2>&1 | tee -a "{log}"
         """

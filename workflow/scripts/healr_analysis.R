@@ -23,7 +23,7 @@ count_list <- count_heal_data(input_dir = input_directory,
 
 # Saving the count list if user wants to
 if(save_healr_lists == TRUE) {
-  healr_lists_out_dir <- paste0(dirname(input_directory),"/healr_lists")
+  healr_lists_out_dir <- paste0(dirname(input_directory),"/healr_list")
 
   write_heal_list(heal_list = count_list,
                    output_dir = healr_lists_out_dir)
@@ -44,7 +44,8 @@ alignment_list <- get_heal_alignment(heal_list = cn_list,
 plot_alignment(heal_list = cn_list,
                alignment = alignment_list,
                output_dir = plot_out_dir,
-               n_threads = num_threads)
+               n_threads = num_threads,
+               add_bins = "both")
 
 plot_heal_heat_map(alignment = alignment_list,
                    output_dir = plot_out_dir)

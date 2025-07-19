@@ -85,7 +85,7 @@ snakemake --use-conda --cores 12 --config INPUT_DIR='/path/to/WGBS' SOFT_CLIP='T
 ```
 #### Bin Size
 
-If you realize that the bin size is not appropriate and want to try another value, you do not need to repeat all the GENESPACE, alignment and read classification steps. To repeat the analysis with a different bin size, move the reproducibility report and the healr directory out of the results. Then, run the snakemake command with the new BIN_SIZE value. 
+If you realize that the bin size is not appropriate and want to try another value, you do not need to repeat all the GENESPACE, alignment and read classification steps. Simply move the reproducibility report and the healr directory out of the results. Then, run the snakemake command with the new BIN_SIZE value. 
 
 ## Output 
 

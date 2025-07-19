@@ -10,6 +10,8 @@ import os
 import glob
 import re
 import requests
+import zipfile
+import io
 
 ## Configuration check
 
@@ -140,28 +142,55 @@ rule make_reproducibility_report:
         """
 
 
-
 ### Import modules ###
 
-## EAGLE-RC 
-# get the scripts
-os.makedirs("results/eagle_rc/scripts", exist_ok=True)
-eagle_rc_url = 'https://raw.githubusercontent.com/kenji-yt/snake-EAGLE-RC/main/workflow/scripts/make_EAGLE_reproducibility_report.sh'
-eagle_rc_output_path = 'results/eagle_rc/scripts/make_EAGLE_reproducibility_report.sh'
+## EAGLE-RC
 
-response_eagle_rc = requests.get(eagle_rc_url)
+# Get the script and environment files for EAGLE-RC
+# Download the ZIP archive of the repo
+repo_url = "https://github.com/kenji-yt/snake-EAGLE-RC/archive/refs/heads/main.zip"
+response = requests.get(repo_url) 
+if response.status_code != 200:
+    raise ValueError(f"Failed to download snake-EAGLE-RC repo ZIP. Are you connected to the internet? Status code: {response.status_code}")
 
-if response_eagle_rc.status_code == 200:
-    with open(eagle_rc_output_path, 'wb') as f:
-        f.write(response_eagle_rc.content)
-else:
-    raise ValueError(f"Failed to download eagle-rc script. Status code: {response_eagle_rc.status_code}")
+# Prepare output paths
+envs_output_dir = "results/eagle_rc/envs"
+script_output_path = "results/eagle_rc/scripts/make_EAGLE_reproducibility_report.sh"
+os.makedirs(envs_output_dir, exist_ok=True)
+os.makedirs(os.path.dirname(script_output_path), exist_ok=True)
 
+# Extract only the desired files/directories
+with zipfile.ZipFile(io.BytesIO(response.content)) as z:
+    found_envs = False
+    found_script = False
+    for member in z.namelist():
+        # Extract files from envs directory (no subdirectories)
+        if member.startswith("snake-EAGLE-RC-main/workflow/envs/") and not member.endswith("/"):
+            filename = os.path.basename(member)
+            target_path = os.path.join(envs_output_dir, filename)
+            with open(target_path, "wb") as f:
+                f.write(z.read(member))
+            found_envs = True
+        # Extract the script
+        elif member == "snake-EAGLE-RC-main/workflow/scripts/make_EAGLE_reproducibility_report.sh":
+            with open(script_output_path, "wb") as f:
+                f.write(z.read(member))
+            found_script = True
+
+# Check if the extraction was successful
+if not found_envs:
+    raise ValueError("Failed to extract envs directory from the snake-EAGLE-RC git directory.")
+if not found_script or not os.path.isfile(script_output_path):
+    raise ValueError("Failed to extract make_EAGLE_reproducibility_report.sh from the snake-EAGLE-RC git directory.")
+
+
+# Define the EAGLE-RC configuration
 eagle_config_values = {
     "INPUT_DIR": f"{INPUT_DIR}",
     "FILTER": FILTER,
     "SOFT_CLIP": SOFT_CLIP,
-    "SCRIPTS_DIR": "results/eagle_rc/scripts"
+    "SCRIPTS_DIR": "results/eagle_rc/scripts",
+    "ENVS_DIR": "results/eagle_rc/envs",
 }
 
 module EAGLE_RC:
@@ -173,34 +202,41 @@ use rule * from EAGLE_RC as eagle_rc_*
 
 
 ## GENESPACE
-# get the scripts
-os.makedirs("results/genespace/scripts", exist_ok=True)
 
-genespace_parse_url = 'https://raw.githubusercontent.com/kenji-yt/snake-GENESPACE/main/workflow/scripts/parse_genespace_input.sh'
-genespace_parse_output_path = 'results/genespace/scripts/parse_genespace_input.sh'
-response_parse_genespace = requests.get(genespace_parse_url)
-if response_parse_genespace.status_code == 200:
-    with open(genespace_parse_output_path, 'wb') as f:
-        f.write(response_parse_genespace.content)
-else:
-    raise ValueError(f"Failed to download genespace parsing script. Status code: {response_parse_genespace.status_code}")
+# Get the script and environment files for EAGLE-RC
+# Download the ZIP archive of the repo
+repo_url = "https://github.com/kenji-yt/snake-GENESPACE/archive/refs/heads/main.zip"
+response = requests.get(repo_url) 
+if response.status_code != 200:
+    raise ValueError(f"Failed to download snake-GENESPACE repo ZIP. Are you connected to the internet? Status code: {response.status_code}")
 
-genespace_reprod_url = 'https://raw.githubusercontent.com/kenji-yt/snake-GENESPACE/main/workflow/scripts/make_GENESPACE_reproducibility_report.sh'
-genespace_reprod_output_path = 'results/genespace/scripts/make_GENESPACE_reproducibility_report.sh'
-response_reprod_genespace = requests.get(genespace_reprod_url)
-if response_reprod_genespace.status_code == 200:
-    with open(genespace_reprod_output_path, 'wb') as f:
-        f.write(response_reprod_genespace.content)
-else:
-    raise ValueError(f"Failed to download genespace reproducility report script. Status code: {response_reprod_genespace.status_code}")
+# Prepare output paths
+scripts_output_dir = "results/genespace/scripts"
+os.makedirs(scripts_output_dir, exist_ok=True)
 
+# Extract only the desired files/directories
+with zipfile.ZipFile(io.BytesIO(response.content)) as z:
+    found_scripts = False
+    for member in z.namelist():
+        # Extract files from script directory 
+        if member.startswith("snake-GENESPACE-main/workflow/scripts/") and not member.endswith("/"):
+            filename = os.path.basename(member)
+            target_path = os.path.join(scripts_output_dir, filename)
+            with open(target_path, "wb") as f:
+                f.write(z.read(member))
+            found_scripts = True
+# Check if the extraction was successful
+if not found_scripts:
+    raise ValueError("Failed to extract scripts from the snake-EAGLE-RC git directory.")
+
+# Define the GENESPACE configuration
 genespace_config_values = {
     "INPUT_DIR": f"{INPUT_DIR}"+"/progenitors",
     "SCRIPTS_DIR": "results/genespace/scripts"
 }
 
 module GENESPACE:
-    snakefile: # CHANGE REPRODUCIBILITY REPORT IF CHANGING THE TAG
+    snakefile: 
         github("kenji-yt/snake-GENESPACE", path="workflow/Snakefile", branch="main")#, tag="v0.1.1-alpha")
     config: genespace_config_values
 

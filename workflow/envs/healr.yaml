@@ -4,6 +4,6 @@ channels:
   - bioconda
   - defaults
 dependencies: 
-  - git=2.45.2
+  - git
   - r-base=4.4.3
   - r-devtools=2.4.5

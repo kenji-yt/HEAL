@@ -71,18 +71,24 @@ Make sure to have snakemake make installed, to replace 'your/input/directory' wi
 
 The outputs will now be generated in a results directory within the HEAL directory. 
 
+Sometimes the workflow might be interrupted during execution. If this occurs, you do not need to repeat every step. Simply fix the issue and run the snakemake command again. The analysis should resume where it left off. 
+
 #### Settings:
 
 There are a number of settings you can modify for the HEAL analysis.
 - **BIN_SIZE**: The size of bins in base pairs on which you infer copy number. The default value is 10000.
 - **SOFT_CLIP**: If you wish to preserve reads that are softclipped in the bismark alignment, potentially to recover exact recombination breakpoints, you can do so by setting the config argument SOFT_CLIP to 'true' (set to 'False' by default). This will keep soft clipped reads in the alignment step. In our experience, these softclipped reads did not enable recovery of exact breakpoint. For DNA seq data, softclipped reads are always allowed by bwa-mem2. 
-- **FILTER**: Whether of not to filter and trim the input reads using [fastp](https://github.com/OpenGene/fastp). You can set it to 'True', 'False' or to custom parameters to pass to fastp. Default value is 'True'. More details in the README of [snake-EAGLE-RC](https://github.com/kenji-yt/snake-EAGLE-RC). 
-- **SAVE_HEALR_LISTS**: A boolean indicating if you wish to save the intermediate data of healr (healr formatted R-list as a directory). This is usefull if you want to manually explore the read counts (recommended) without having to run featureCounts again. Default is "True". 
+- **FILTER**: Whether of not to filter and trim the input reads using [fastp](https://github.com/OpenGene/fastp). You can set it to 'True', 'False' or to custom parameters to pass to fastp. Default value is 'True'. More details in the README of [snake-EAGLE-RC](https://github.com/kenji-yt/snake-EAGLE-RC).  
 
 So if you wish to run HEAL with 12 cores, 50kbp bins, soft-clipping allowed in bismark and no trimming and filtering:
 ```
 snakemake --use-conda --cores 12 --config INPUT_DIR='/path/to/WGBS' SOFT_CLIP='True' BIN_SIZE=50000 FILTER='False' 
 ```
+
+You can also run the workflow only up until a specific point. For example, you might want to first check the quality of the raw reads and the effect of filtering (see details [here](https://github.com/kenji-yt/snake-EAGLE-RC?tab=readme-ov-file#quality-check--filtering)). This can be done by using the "--until" flag followed by the rule (name for snakemake analysis step) of your choice. For example, to run only until filtering you can pass "--until eagle_rc_fastp_se" or "eagle_rc_fast_pe" (depending on if your data is single-end (se) or paired-end (pe)). The "eagle_rc_" prefix is added to the snake-EAGLE-RC rule name because HEAL imports snake-EAGLE-RC as a module. For snake-GENESPACE the prefix is "genespace_".
+
+You might also run into memory issues with qualimap. You can manually provide it with more memory by passing the argument "--set-resources eagle_rc_qualimap:mem_mb=16000" (here setting 16000MB of memory to the each qualimap run).
+
 #### Bin Size
 
 If you realize that the bin size is not appropriate and want to try another value, you do not need to repeat all the GENESPACE, alignment and read classification steps. Simply move the reproducibility report and the healr directory out of the results. Then, run the snakemake command with the new BIN_SIZE value. 
@@ -93,10 +99,10 @@ Results will be written to a directory called "results" inside the HEAL director
 - eagle_rc: Contains the eagle installation and one directory per sample with the eagle-rc results and a script used to produce these results.
 - fastp (if FILTER='True'): Contains one directory per sample with filtered and trimmed read files and quality check reports. 
 - qualimap: Contains one directory per sample containing the output of qualimap for every ".ref." bam files in the 'eagle_rc' directory. 
-- bismark/bwa: Contains bam files of the reads aligned to each subgenome. 
+- bismark/bwa: Contains bam files of the reads aligned to each (renamed) subgenome. It is important to note that these bam files are assigned to subgenome assemblies which had their chromosome names changed to match eagle-rc requirements. If you intend to use these files you might therefore want to renamed them. The chromosomes were renamed by prepending "UNQ_{progenitor_name}_NME_". 
 - genespace: Contains a directory for MCScanX, a directory for scripts and 'run_dir' which contains the formated input data for GENESPACE as well as the results of the GENESPACE analysis. For more details see [GENESPACE](https://github.com/jtlovell/GENESPACE).
 - genmap: Contains the output of genmap for each subgenome. 
-- healr: Contains an input directory for healr ('input_dir') which can be used for further healr analyses. It also contains one directory called stats which has data tables  and one dire
+- healr: Contains an input directory for healr ('input_dir') which can be used as input directory for the healr function 'get_heal_data()'. It also contains a directory called 'healr_list' which can be used for the healr function 'read_heal_list()'. You can use this directory to skip the read counting ('get_heal_data()') step. You will also find one directory called stats which has data tables resuming the HE patterns in the data and one directory called figures with copy number alignment plots. 
 - logs: Contains logs for each analysis.
 - MultiQC: Contains the file "multiqc_report.html" which compiles qualimap and fastp reports.  
 - snakemake_EAGLE_RC_reproducibility_report.txt: A text file with details about the input and output files and the tools and parameters used. 

@@ -39,10 +39,6 @@ elif FILTER is False:
 SOFT_CLIP = config.get("SOFT_CLIP", False)
 if not isinstance(SOFT_CLIP, bool):
     raise ValueError("Error: SOFT_CLIP must be either True or False.")
-SAVE_HEALR_LISTS = config.get("SAVE_HEALR_LISTS", True)
-if not isinstance(SOFT_CLIP, bool):
-    raise ValueError("Error: SAVE_HEALR_LISTS must be either True or False.")
-
 
 ## Parse Input directory
 
@@ -71,11 +67,6 @@ if num_files == 2:
     IS_PAIRED = "TRUE"
 else:
     IS_PAIRED = "FALSE"
-
-if SAVE_HEALR_LISTS == True:
-    save_healr_lists = "TRUE"
-else:
-    save_healr_lists = "FALSE"
 
 # get all read files
 accepted_read_patterns = [

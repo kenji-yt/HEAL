@@ -9,7 +9,6 @@ library(healr)
 input_directory <- snakemake@params[["input_dir"]]
 is_paired <- as.logical(snakemake@params[["is_paired"]])
 genespace_directory <- snakemake@params[["genespace_dir"]]
-save_healr_lists <- as.logical(snakemake@params[["save_healr_lists"]])
 num_threads <- snakemake@threads
 
 plot_out_dir <- paste0(dirname(input_directory),"/figures")
@@ -21,18 +20,15 @@ count_list <- count_heal_data(input_dir = input_directory,
                 paired_end = is_paired,
                 full_output = FALSE)
 
-# Saving the count list if user wants to
-if(save_healr_lists == TRUE) {
-  healr_lists_out_dir <- paste0(dirname(input_directory),"/healr_list")
 
-  write_heal_list(heal_list = count_list,
-                   output_dir = healr_lists_out_dir)
-}
+healr_lists_out_dir <- paste0(dirname(input_directory),"/healr_list")
 
-# Add options in config here
+write_heal_list(heal_list = count_list,
+                output_dir = healr_lists_out_dir)
+
+
 filt_list <- filter_bins(count_list)
 
-# If DNA then correct with GC: or not
 
 cn_list <- get_copy_number(heal_list = filt_list,
                 n_threads = num_threads)

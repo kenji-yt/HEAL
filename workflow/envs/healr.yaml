@@ -5,5 +5,9 @@ channels:
   - defaults
 dependencies: 
   - git
-  - r-base=4.4.3
+  - r-base
   - r-devtools
+  - bioconductor-iranges
+  - bioconductor-genomicranges
+  - bioconductor-dnacopy
+  - bioconductor-rsubread

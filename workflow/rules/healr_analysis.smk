@@ -41,6 +41,8 @@ rule healr_analysis:
     log:
         "results/logs/healr/analysis.log"
     threads:workflow.cores
+    conda:
+        "../envs/healr.yaml"
     params:
         input_dir="results/healr/input_dir",
         is_paired=f"{IS_PAIRED}",

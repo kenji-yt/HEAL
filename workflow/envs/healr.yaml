@@ -6,4 +6,4 @@ channels:
 dependencies: 
   - git
   - r-base=4.5
-  - r-devtools=2.4.5
+  - r-devtools

@@ -11,3 +11,4 @@ dependencies:
   - bioconductor-genomicranges
   - bioconductor-dnacopy
   - bioconductor-rsubread
+  - r-data.table

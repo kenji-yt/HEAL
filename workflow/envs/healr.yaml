@@ -12,3 +12,4 @@ dependencies:
   - bioconductor-dnacopy
   - bioconductor-rsubread
   - r-data.table
+  - r-svglite

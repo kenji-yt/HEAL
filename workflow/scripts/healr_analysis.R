@@ -41,7 +41,7 @@ plot_alignment(heal_list = cn_list,
                alignment = alignment_list,
                output_dir = plot_out_dir,
                n_threads = num_threads,
-               add_bins = "both")
+               add_bins = "all")
 
 plot_heal_heat_map(alignment = alignment_list,
                    output_dir = plot_out_dir)

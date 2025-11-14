@@ -101,7 +101,7 @@ You might also run into memory issues with qualimap. You can manually provide it
 
 If you realize that the bin size is not appropriate and want to try another value, you do not need to repeat all the GENESPACE, alignment and read classification steps. Simply move the reproducibility report and the healr directory out of the results. Then, run the snakemake command with the new BIN_SIZE value. 
 
-## Output 
+### Output 
 
 Results will be written to a directory called "results" inside the HEAL directory. In this directory you will find the following files and directories:
 - eagle_rc: Contains the eagle installation and one directory per sample with the eagle-rc results and a script used to produce these results.
@@ -114,3 +114,15 @@ Results will be written to a directory called "results" inside the HEAL director
 - logs: Contains logs for each analysis.
 - MultiQC: Contains the file "multiqc_report.html" which compiles qualimap and fastp reports.  
 - snakemake_EAGLE_RC_reproducibility_report.txt: A text file with details about the input and output files and the tools and parameters used. 
+
+### Revisiting Results with healr
+
+Once your run is finished you should use the R-package [healr](https://github.com/kenji-yt/healr) to explore the results and fine tune your parameters. You can download healr in R using:
+```
+# install.packages("devtools")
+devtools::install_github("kenji-yt/healr", build_vignettes = TRUE)
+```
+Once installed, you can find a tutorial on how to use healr by running: 
+```
+browseVignettes("healr")
+```

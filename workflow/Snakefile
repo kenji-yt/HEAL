@@ -186,7 +186,7 @@ eagle_config_values = {
 
 module EAGLE_RC:
     snakefile: # CHANGE REPRODUCIBILITY REPORT IF CHANGING THE TAG
-        github("kenji-yt/snake-EAGLE-RC", path="workflow/Snakefile", branch="main") # ,tag="v0.1.1-alpha") Put back tag after 
+        github("kenji-yt/snake-EAGLE-RC", path="workflow/Snakefile", tag="v0.1.2-alpha") 
     config: eagle_config_values
 
 use rule * from EAGLE_RC as eagle_rc_*
@@ -196,7 +196,7 @@ use rule * from EAGLE_RC as eagle_rc_*
 
 # Get the script and environment files for EAGLE-RC
 # Download the ZIP archive of the repo
-repo_url = "https://github.com/kenji-yt/snake-GENESPACE/archive/refs/heads/main.zip"
+repo_url = "https://github.com/kenji-yt/snake-GENESPACE/archive/refs/heads/main.zip"''
 response = requests.get(repo_url) 
 if response.status_code != 200:
     raise ValueError(f"Failed to download snake-GENESPACE repo ZIP. Are you connected to the internet? Status code: {response.status_code}")
@@ -228,7 +228,7 @@ genespace_config_values = {
 
 module GENESPACE:
     snakefile: 
-        github("kenji-yt/snake-GENESPACE", path="workflow/Snakefile", branch="main")#, tag="v0.1.1-alpha")
+        github("kenji-yt/snake-GENESPACE", path="workflow/Snakefile", tag="v0.1.2-alpha")
     config: genespace_config_values
 
 use rule * from GENESPACE as genespace_* 

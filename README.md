@@ -20,6 +20,10 @@ The workflow can be summarized as follows:
     - Plot the combined copy number along each subgenomes gene order. 
     - Compute and return genome wide and per-chromosome statistics regarding the distribution of anchor sets (groups of corresponding anchors from different subgenomes) in each copy number ratio. 
 
+## Bugs, Suggestions, Help 
+
+If you wish to report an error/bug, ask for help, or suggest changes and new features, please open an issue [here](https://github.com/kenji-yt/HEAL/issues). 
+
 ## Installation 
 
 - [install Snakemake via Conda](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html).
@@ -61,6 +65,8 @@ input_directory/
 
 HEAL can work with up to three subgenomes (hexaploid). The chokepoint is EAGLE-RC, which means if you can classify reads in another manner, then there is no more limit to the number of subgenomes. 
 
+You can find an **test input directory** in `.test/data`.
+
 ## Usage
 
 You are now ready to run HEAL. From within the "HEAL/" directory downloaded from github, run the following command:
@@ -72,6 +78,8 @@ Make sure to have snakemake make installed, to replace 'your/input/directory' wi
 The outputs will now be generated in a results directory within the HEAL directory. 
 
 Sometimes the workflow might be interrupted during execution. If this occurs, you do not need to repeat every step. Simply fix the issue and run the snakemake command again. The analysis should resume where it left off. 
+
+The recommended way to use HEAL is to first run the entire workflow and then to revisit the results in R with [healr](https://github.com/kenji-yt/healr). 
 
 #### Settings:
 

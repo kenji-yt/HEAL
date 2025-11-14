@@ -1,4 +1,5 @@
 sink(snakemake@log[[1]], split=TRUE, append=TRUE)
+sink(snakemake@log[[1]], split=TRUE, append=TRUE, type="message")
 
 library(devtools)
 
@@ -15,7 +16,7 @@ num_threads <- snakemake@threads
 plot_out_dir <- paste0(dirname(input_directory),"/figures")
 stats_out_dir <- paste0(dirname(input_directory),"/stats")
 
-
+    
 count_list <- count_heal_data(input_dir = input_directory,
                 n_threads= num_threads,
                 paired_end = is_paired,
@@ -28,7 +29,7 @@ write_heal_list(heal_list = count_list,
                 output_dir = healr_lists_out_dir)
 
 
-filt_list <- filter_bins(count_list)
+filt_list <- filter_bins(count_list, log_file = paste0(dirname(input_directory),"/filtering_log.txt"))
 
 if(data_type == "DNA"){
     filt_list <- correct_gc(heal_list = filt_list,
@@ -50,6 +51,7 @@ plot_alignment(heal_list = cn_list,
                add_bins = "all")
 
 plot_all_bins(heal_list = cn_list,
+               plot_cn = TRUE,
                output_dir = plot_out_dir)
 
 plot_riparian(heal_list = cn_list,

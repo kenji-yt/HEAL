@@ -136,10 +136,10 @@ rule make_reproducibility_report:
 ### Import modules ###
 
 ## EAGLE-RC
-
+snake_eagle_rc_version_number="1.0.0" # No v before, just the number
 # Get the script and environment files for EAGLE-RC
 # Download the ZIP archive of the repo
-repo_url = "https://github.com/kenji-yt/snake-EAGLE-RC/archive/refs/heads/main.zip"
+repo_url = f"https://github.com/kenji-yt/snake-EAGLE-RC/archive/refs/tags/v{snake_eagle_rc_version_number}.zip"
 response = requests.get(repo_url) 
 if response.status_code != 200:
     raise ValueError(f"Failed to download snake-EAGLE-RC repo ZIP. Are you connected to the internet? Status code: {response.status_code}")
@@ -156,14 +156,14 @@ with zipfile.ZipFile(io.BytesIO(response.content)) as z:
     found_script = False
     for member in z.namelist():
         # Extract files from envs directory (no subdirectories)
-        if member.startswith("snake-EAGLE-RC-main/workflow/envs/") and not member.endswith("/"):
+        if member.startswith(f"snake-EAGLE-RC-{snake_eagle_rc_version_number}/workflow/envs/") and not member.endswith("/"):
             filename = os.path.basename(member)
             target_path = os.path.join(envs_output_dir, filename)
             with open(target_path, "wb") as f:
                 f.write(z.read(member))
             found_envs = True
         # Extract the script
-        elif member == "snake-EAGLE-RC-main/workflow/scripts/make_EAGLE_reproducibility_report.sh":
+        elif member == f"snake-EAGLE-RC-{snake_eagle_rc_version_number}/workflow/scripts/make_EAGLE_reproducibility_report.sh":
             with open(script_output_path, "wb") as f:
                 f.write(z.read(member))
             found_script = True
@@ -186,17 +186,17 @@ eagle_config_values = {
 
 module EAGLE_RC:
     snakefile: # CHANGE REPRODUCIBILITY REPORT IF CHANGING THE TAG
-        github("kenji-yt/snake-EAGLE-RC", path="workflow/Snakefile", tag="v0.1.2-alpha") 
+        github("kenji-yt/snake-EAGLE-RC", path="workflow/Snakefile", tag=f"v{snake_eagle_rc_version_number}") 
     config: eagle_config_values
 
 use rule * from EAGLE_RC as eagle_rc_*
 
 
 ## GENESPACE
-
+snake_GENESPACE_version_number="1.0.0" # No v before, just the number
 # Get the script and environment files for EAGLE-RC
 # Download the ZIP archive of the repo
-repo_url = "https://github.com/kenji-yt/snake-GENESPACE/archive/refs/heads/main.zip"''
+repo_url = f"https://github.com/kenji-yt/snake-GENESPACE/archive/refs/tags/v{snake_GENESPACE_version_number}.zip"
 response = requests.get(repo_url) 
 if response.status_code != 200:
     raise ValueError(f"Failed to download snake-GENESPACE repo ZIP. Are you connected to the internet? Status code: {response.status_code}")
@@ -210,7 +210,7 @@ with zipfile.ZipFile(io.BytesIO(response.content)) as z:
     found_scripts = False
     for member in z.namelist():
         # Extract files from script directory 
-        if member.startswith("snake-GENESPACE-main/workflow/scripts/") and not member.endswith("/"):
+        if member.startswith(f"snake-GENESPACE-{snake_GENESPACE_version_number}/workflow/scripts/") and not member.endswith("/"):
             filename = os.path.basename(member)
             target_path = os.path.join(scripts_output_dir, filename)
             with open(target_path, "wb") as f:
@@ -218,7 +218,7 @@ with zipfile.ZipFile(io.BytesIO(response.content)) as z:
             found_scripts = True
 # Check if the extraction was successful
 if not found_scripts:
-    raise ValueError("Failed to extract scripts from the snake-EAGLE-RC git directory.")
+    raise ValueError("Failed to extract scripts from the snake-GENESPACE git directory.")
 
 # Define the GENESPACE configuration
 genespace_config_values = {
@@ -228,7 +228,7 @@ genespace_config_values = {
 
 module GENESPACE:
     snakefile: 
-        github("kenji-yt/snake-GENESPACE", path="workflow/Snakefile", tag="v0.1.2-alpha")
+        github("kenji-yt/snake-GENESPACE", path="workflow/Snakefile", tag=f"v{snake_GENESPACE_version_number}")
     config: genespace_config_values
 
 use rule * from GENESPACE as genespace_* 

@@ -1,12 +1,21 @@
-sink(snakemake@log[[1]], split=TRUE, append=TRUE)
-sink(snakemake@log[[1]], split=TRUE, append=TRUE, type="message")
+# Open file connection for writing
+log <- file(snakemake@log[[1]], open = "wt") 
 
+sink(log, split=TRUE, append=TRUE)
+sink(log, append=TRUE, type="message")
+
+# Load packages
 library(devtools)
 
-devtools::install_github("kenji-yt/healr", quiet = TRUE)
+devtools::install_github(
+    paste0("kenji-yt/healr@v",snakemake@params[["healr_version"]]),
+    force = TRUE,
+    quiet = TRUE
+    )
 
 library(healr)
 
+# Get parameters
 input_directory <- snakemake@params[["input_dir"]]
 is_paired <- as.logical(snakemake@params[["is_paired"]])
 genespace_directory <- snakemake@params[["genespace_dir"]]
@@ -16,7 +25,7 @@ num_threads <- snakemake@threads
 plot_out_dir <- paste0(dirname(input_directory),"/figures")
 stats_out_dir <- paste0(dirname(input_directory),"/stats")
 
-    
+# Analyses
 count_list <- count_heal_data(input_dir = input_directory,
                 n_threads= num_threads,
                 paired_end = is_paired,
@@ -32,6 +41,7 @@ write_heal_list(heal_list = count_list,
 filt_list <- filter_bins(count_list, log_file = paste0(dirname(input_directory),"/filtering_log.txt"))
 
 if(data_type == "DNA"){
+    dir.create(plot_out_dir)
     filt_list <- correct_gc(heal_list = filt_list,
                n_threads = num_threads, 
                output_dir = plot_out_dir)
@@ -67,4 +77,3 @@ summary_aln <- summarize_aln(alignment = alignment_list,
 
 write_aln_summary(alignment_summary = summary_aln,
                  output_dir = stats_out_dir)
-

@@ -98,7 +98,8 @@ wildcard_constraints: # limit the value of these wildcards to directory names
     sample = sample_regex,
     progenitor = progenitor_regex
 
-
+### Set healr version ###
+HEALR_VERSION="1.0.0" # No v before, just the number
 
 ### Rules ###
 include: "rules/bin_gc_map.smk"
@@ -122,6 +123,7 @@ rule make_reproducibility_report:
         bin_size=BIN_SIZE,
         filtering=FILTER_PARAMS,
         soft_clip=SOFT_CLIP,
+        healr_version=HEALR_VERSION
     threads:1
     shell:
         """
@@ -129,14 +131,15 @@ rule make_reproducibility_report:
         {params.cores} \
         {params.bin_size} \
         {params.filtering} \
-        {params.soft_clip}
+        {params.soft_clip} \
+        {params.healr_version}
         """
 
 
 ### Import modules ###
 
 ## EAGLE-RC
-snake_eagle_rc_version_number="1.0.0" # No v before, just the number
+snake_eagle_rc_version_number="1.0.1" # No v before, just the number
 # Get the script and environment files for EAGLE-RC
 # Download the ZIP archive of the repo
 repo_url = f"https://github.com/kenji-yt/snake-EAGLE-RC/archive/refs/tags/v{snake_eagle_rc_version_number}.zip"

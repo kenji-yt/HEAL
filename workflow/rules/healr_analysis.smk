@@ -48,5 +48,6 @@ rule healr_analysis:
         is_paired=f"{IS_PAIRED}",
         genespace_dir="results/genespace/run_dir",
         data_type=DATA_TYPE,
+        healr_version=HEALR_VERSION
     script:
         f"{workflow.basedir}/scripts/healr_analysis.R" 

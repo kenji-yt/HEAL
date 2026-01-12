@@ -99,7 +99,7 @@ wildcard_constraints: # limit the value of these wildcards to directory names
     progenitor = progenitor_regex
 
 ### Set healr version ###
-HEALR_VERSION="1.0.3" # No v before, just the number
+HEALR_VERSION="1.0.5" # No v before, just the number
 
 ### Rules ###
 include: "rules/bin_gc_map.smk"

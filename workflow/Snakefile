@@ -196,7 +196,7 @@ use rule * from EAGLE_RC as eagle_rc_*
 
 
 ## GENESPACE
-snake_GENESPACE_version_number="1.0.0" # No v before, just the number
+snake_GENESPACE_version_number="1.0.1" # No v before, just the number
 # Get the script and environment files for EAGLE-RC
 # Download the ZIP archive of the repo
 repo_url = f"https://github.com/kenji-yt/snake-GENESPACE/archive/refs/tags/v{snake_GENESPACE_version_number}.zip"

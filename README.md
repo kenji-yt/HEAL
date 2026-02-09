@@ -2,7 +2,7 @@
 
 [![Snakemake](https://img.shields.io/badge/snakemake-≥9-brightgreen.svg)](https://snakemake.github.io)
 
-HEAL is a snakemake workflow for automated labelling of homeologous exchanges (HE). 
+HEAL is a snakemake workflow for automated labelling of homoeologous exchanges (HE). 
 
 HEAL takes whole genome sequencing reads from allopolyploids and the genome assemblies and annotations of the two subgenomes/progenitors to infer the copy number over the genomes. It then uses synteny information to match the copy numbers of both subgenomes. The combined copy numbers provide valuable information regarding homeologous exchanges and other rearangements. 
 

@@ -1,4 +1,4 @@
-# `HEAL: Homeologous Exchange Automated Labeller`
+# `HEAL: Homoeologous Exchange Automated Labeller`
 
 [![Snakemake](https://img.shields.io/badge/snakemake-≥9-brightgreen.svg)](https://snakemake.github.io)
 

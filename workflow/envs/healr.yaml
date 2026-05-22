@@ -6,7 +6,7 @@ channels:
 dependencies: 
   - git
   - r-base
-  - r-devtools
+  - r-devtools=2.4.5 
   - bioconductor-iranges
   - bioconductor-genomicranges
   - bioconductor-dnacopy

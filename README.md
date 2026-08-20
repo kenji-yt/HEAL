@@ -81,6 +81,13 @@ Sometimes the workflow might be interrupted during execution. If this occurs, yo
 
 The recommended way to use HEAL is to first run the entire workflow and then to revisit the results in R with [healr](https://github.com/kenji-yt/healr). 
 
+You can get a small example dataset here:
+```
+wget https://zenodo.org/records/22030880/files/test_data.tar.gz
+```
+Inside the downloaded directory you will find the test input directory for HEAL. You need to rename it either "DNA" or "WGBS" depending one which workflow you wish to test. 
+Once the HEAL run is finished you can test [healr](https://github.com/kenji-yt/healr). Just follow the instructions in the [Revisiting Results with healr](#revisiting-results-with-healr) section. 
+
 #### Settings:
 
 There are a number of settings you can modify for the HEAL analysis.

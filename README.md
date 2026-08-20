@@ -81,6 +81,8 @@ Sometimes the workflow might be interrupted during execution. If this occurs, yo
 
 The recommended way to use HEAL is to first run the entire workflow and then to revisit the results in R with [healr](https://github.com/kenji-yt/healr). 
 
+#### Test Dataset:
+
 You can get a small example dataset here:
 ```
 wget https://zenodo.org/records/22030880/files/test_data.tar.gz

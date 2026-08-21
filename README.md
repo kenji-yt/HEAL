@@ -26,7 +26,7 @@ If you wish to report an error/bug, ask for help, or suggest changes and new fea
 
 ## Installation 
 
-- [install Snakemake via Conda](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html).
+- [install Snakemake (v≥9) via Conda](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html).
 - git clone HEAL: 
 ```
 git clone https://github.com/kenji-yt/HEAL.git

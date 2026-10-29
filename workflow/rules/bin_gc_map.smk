@@ -12,7 +12,7 @@ rule define_bins:
     shell:
         """
         samtools faidx {input} 2> {log}
-        bedtools makewindows -g {input}.fai -w {params.bin_size} > {output.bin_bed} 2> {log}
+        bedtools makewindows -g {input}.fai -w {params.bin_size} > {output.bin_bed} 2>> {log}
         """
 
 rule count_gc:
@@ -34,13 +34,15 @@ rule count_gc:
 
 def get_random_read_file(filter):
     
+    # One read file, to estimate the read length used as k-mer size for mappability
+    sample = SAMPLES[0]
     if filter == True:
-        polyploids=glob.glob(f"{INPUT_DIR}/polyploids/*")
-        random_sample_name=os.path.basename(polyploids[0])
-        random_file = f"results/fastp/{random_sample_name}/{random_sample_name}_R1_filtered.fastq.gz"
-        return random_file
+        if IS_PAIRED == "TRUE":
+            return f"results/fastp/{sample}/{sample}_R1_filtered.fastq.gz"
+        else:
+            return f"results/fastp/{sample}/{sample}_filtered.fastq.gz"
     else:    
-        return os.path.join(f"{INPUT_DIR}/polyploids/", all_read_paths[0]),
+        return os.path.join(f"{INPUT_DIR}/polyploids/", all_read_paths[0])
 
 
 rule compute_mappability:
@@ -78,8 +80,8 @@ rule compute_mappability:
         genmap_bedgraph=$(find "{output.genmap_index_dir}" -name *.genmap.bedgraph)
         mappa_bed="results/healr/input_dir/progenitors/{wildcards.progenitor}/{wildcards.progenitor}_${{read_length}}kmer_{params.bin_size}_mappability.bed"
         
-        bedtools intersect -a "{input.bin_bed}" -b "${{genmap_bedgraph}}" -wo > "results/genmap/tmp_{wildcards.progenitor}.genmap.intersect.bed" 2> "{log}" 
+        bedtools intersect -a "{input.bin_bed}" -b "${{genmap_bedgraph}}" -wo > "results/genmap/tmp_{wildcards.progenitor}.genmap.intersect.bed" 2>> "{log}" 
         bash "{workflow.basedir}/scripts/map_in_bins.sh" "{params.bin_size}" "results/genmap/tmp_{wildcards.progenitor}.genmap.intersect.bed" "results/genmap/tmp_{wildcards.progenitor}.genmap.unsorted.bed" 2>&1 | tee -a "{log}"
-        bedtools sort -i "results/genmap/tmp_{wildcards.progenitor}.genmap.unsorted.bed" > "${{mappa_bed}}" 2> "{log}"
+        bedtools sort -i "results/genmap/tmp_{wildcards.progenitor}.genmap.unsorted.bed" > "${{mappa_bed}}" 2>> "{log}"
         rm -r "results/genmap/tmp_{wildcards.progenitor}"* 2>&1 | tee -a "{log}"
         """

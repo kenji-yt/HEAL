@@ -2,14 +2,21 @@ name: healr_env
 channels:
   - conda-forge
   - bioconda
-  - defaults
-dependencies: 
-  - git
-  - r-base
-  - r-devtools=2.4.5 
-  - bioconductor-iranges
-  - bioconductor-genomicranges
-  - bioconductor-dnacopy
-  - bioconductor-rsubread
-  - r-data.table
-  - r-svglite
+  - nodefaults
+dependencies:
+  - git=2.56.0
+  - r-base=4.5.3
+  - r-remotes=2.5.0
+  - bioconductor-iranges=2.46.0
+  - bioconductor-genomicranges=1.64.0
+  - bioconductor-dnacopy=1.86.0
+  - bioconductor-rsubread=2.24.0
+  - r-data.table=1.18.6.1
+  - r-foreach=1.5.2
+  - r-doparallel=1.0.17
+  - r-withr=3.0.3
+  - r-ggplot2=4.0.3
+  - r-mass=7.3_66
+  - r-viridis=0.6.5
+  - r-patchwork=1.3.2
+  - r-svglite=2.2.2

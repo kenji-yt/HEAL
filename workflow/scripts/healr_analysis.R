@@ -4,14 +4,11 @@ log <- file(snakemake@log[[1]], open = "wt")
 sink(log, split=TRUE, append=TRUE)
 sink(log, append=TRUE, type="message")
 
-# Load packages
-library(devtools)
-
-devtools::install_github(
-    paste0("kenji-yt/healr@v",snakemake@params[["healr_version"]]),
-    force = TRUE,
-    quiet = TRUE
-    )
+# Install and load healr
+healr_ref <- paste0("v", snakemake@params[["healr_version"]])
+if (!requireNamespace("healr", quietly = TRUE) ||
+    !identical(utils::packageDescription("healr")$RemoteRef, healr_ref))
+    remotes::install_github(paste0("kenji-yt/healr@", healr_ref), quiet = TRUE, upgrade = "never", force = TRUE)
 
 library(healr)
 

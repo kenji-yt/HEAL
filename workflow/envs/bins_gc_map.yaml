@@ -1,3 +1,4 @@
+# Used for: defining bins, counting GC content and computing mappability
 name: bins_gc_map
 channels:
   - conda-forge

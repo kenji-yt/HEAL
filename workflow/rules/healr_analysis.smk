@@ -10,7 +10,7 @@ rule make_healr_polyploid_input_dir:
             for prog in PROGENITORS:
                 bam_types = [("ref", ""), ("unk", "unknown")] if COUNT_UNKNOWN else [("ref", "")]
                 # REF reads in <sample>/<prog>/, unknown reads in <sample>/<prog>/unknown/
-                for bam_type, sub_dir in [("ref", ""), ("unk", "unknown")]:
+                for bam_type, sub_dir in bam_types:
                     bam = f"results/eagle_rc/{wildcards.sample}/{wildcards.sample}_classified_{prog}.{bam_type}.bam"
                     if not os.path.isfile(bam):
                         raise ValueError(f"Expected EAGLE-RC output {bam} not found.")

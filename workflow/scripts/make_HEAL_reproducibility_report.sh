@@ -8,6 +8,8 @@ bin_size=$3
 filtering_params=$4
 softclipping=$5
 healr_version=$6
+heal_version=$7
+envs_dir=$8
 
 snake_eagle_rc_report=results/snake_EAGLE_RC_reproducibility_report.txt
 snake_genespace_report=results/snake_GENESPACE_reproducibility_report.txt
@@ -83,18 +85,15 @@ echo "*********" >> "${report}"
 echo "" >> "${report}"
 echo "" >> "${report}"
 
-version_HEAL=$(git describe --tags --abbrev=0 | sed 's/v//g')
-echo "HEAL=${version_HEAL}" >> "${report}"
-echo "healr=${healr_version}" >> "${report}"
-echo "Tools used to define bins, count GC content and mappability:" >> "${report}"
-grep 'bedtools' workflow/envs/bins_gc_map.yaml >> "${report}"  
-grep 'samtools' workflow/envs/bins_gc_map.yaml >> "${report}"  
-grep 'genmap' workflow/envs/bins_gc_map.yaml >> "${report}"  
-grep 'seqkit' workflow/envs/bins_gc_map.yaml >> "${report}"  
-echo "Tools used for healr:" >> "${report}"
-grep 'git' workflow/envs/healr.yaml >> "${report}"
-grep 'r-base' workflow/envs/healr.yaml >> "${report}"
-grep 'r-devtools' workflow/envs/healr.yaml >> "${report}"
+echo "HEAL=${heal_version}" >> "${report}"
+echo "- healr=${healr_version} (GitHub kenji-yt/healr@v${healr_version})" >> "${report}"
+# Pinned packages of each conda environment
+echo "- conda environments:" >> "${report}"
+for env_file in "${envs_dir}"/*.yaml; do
+    purpose=$(sed -n 's/^# Used for: *//p' "${env_file}")
+    echo "  ${purpose:-$(basename "${env_file}" .yaml)}:" >> "${report}"
+    sed -n '/^dependencies:/,$p' "${env_file}" | grep -E '^[[:space:]]*- ' | sed -E 's/^[[:space:]]*- */    - /; s/[[:space:]]*#.*$//' >> "${report}"
+done
 echo "" >> "${report}"
 awk '/\* TOOLS \*/ {flag=1; next} /\* OUTPUT FILES \*/ {flag=0} flag' $snake_eagle_rc_report \
  | grep -v '^$' | grep -v '^\*' >> "${report}"
@@ -124,5 +123,3 @@ awk '/\* OUTPUT FILES \*/ {flag=1; next} flag' $snake_eagle_rc_report \
 echo "" >> "${report}"
 awk '/\* OUTPUT FILES \*/ {flag=1; next} flag' $snake_genespace_report \
 | grep -v '^$' | grep -v '^\*' | grep -v '^Mac md5' | grep -v '^Linux md5sum' >> "${report}"
-
-rm results/snake_*_reproducibility_report.txt

@@ -50,8 +50,17 @@ if DATA_TYPE not in {"DNA", "RNA", "WGBS"}:
 
 # Sample and subgenome directories, without hidden files (e.g. .DS_Store), in a fixed order
 SAMPLES = sorted(d for d in os.listdir(f"{INPUT_DIR}/polyploids") if not d.startswith(".") and os.path.isdir(f"{INPUT_DIR}/polyploids/{d}"))
-PROGENITORS = sorted(d for d in os.listdir(f"{INPUT_DIR}/progenitors") if not d.startswith(".") and os.path.isdir(f"{INPUT_DIR}/progenitors/{d}"))
-
+# Subgenome directory: "subgenomes" ("progenitors", its name before version 1.1.0, is still accepted)
+if os.path.isdir(f"{INPUT_DIR}/subgenomes") and os.path.isdir(f"{INPUT_DIR}/progenitors"):
+    raise ValueError(f"ERROR: {INPUT_DIR} contains both 'subgenomes' and 'progenitors'. Keep only 'subgenomes'.")
+elif os.path.isdir(f"{INPUT_DIR}/subgenomes"):
+    SUBGENOMES_DIR = f"{INPUT_DIR}/subgenomes"
+elif os.path.isdir(f"{INPUT_DIR}/progenitors"):
+    SUBGENOMES_DIR = f"{INPUT_DIR}/progenitors"
+    print("Note: the input directory 'progenitors' is now called 'subgenomes'. 'progenitors' is still accepted for now.")
+else:
+    raise ValueError(f"ERROR: No 'subgenomes' directory found in {INPUT_DIR}.")
+PROGENITORS = sorted(d for d in os.listdir(SUBGENOMES_DIR) if not d.startswith(".") and os.path.isdir(f"{SUBGENOMES_DIR}/{d}"))
 # Unknown reads (EAGLE-RC .unk.bam) are only counted with two progenitors: with three, EAGLE-RC places
 # each unknown read in one subgenome only, chosen by subgenome order when equally likely.
 COUNT_UNKNOWN = len(PROGENITORS) == 2
@@ -228,7 +237,7 @@ if not found_scripts:
 
 # Define the GENESPACE configuration
 genespace_config_values = {
-    "INPUT_DIR": f"{INPUT_DIR}"+"/progenitors",
+    "INPUT_DIR": SUBGENOMES_DIR,
     "SCRIPTS_DIR": "results/genespace/scripts"
 }
 
@@ -238,3 +247,5 @@ module GENESPACE:
     config: genespace_config_values
 
 use rule * from GENESPACE as genespace_* 
+
+rm results/snake_*_reproducibility_report.txt

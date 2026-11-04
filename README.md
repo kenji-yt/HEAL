@@ -4,14 +4,14 @@
 
 HEAL is a snakemake workflow for automated labelling of homoeologous exchanges (HE). 
 
-HEAL takes whole genome sequencing reads from allopolyploids and the genome assemblies and annotations of the two subgenomes/progenitors to infer the copy number over the genomes. It then uses synteny information to match the copy numbers of both subgenomes. The combined copy numbers provide valuable information regarding homeologous exchanges and other rearangements. 
+HEAL takes whole genome sequencing reads from allopolyploids and the genome assemblies and annotations of the subgenomes to infer the copy number over the genomes. It then uses synteny information to match the copy numbers of both subgenomes. The combined copy numbers provide valuable information regarding homeologous exchanges and other rearangements. 
 
 ## Workflow
 
 The workflow can be summarized as follows:
 - Reads are aligned to the appropriate subgenome and classified using [snake-EAGLE-RC](https://github.com/kenji-yt/snake-EAGLE-RC) (a snakemake workflow around [EAGLE-RC](https://github.com/tony-kuo/eagle?tab=readme-ov-file#eagle-rc)). For details see the README of snake-EAGLE-RC.
 - Syntenic anchors (high confidence collinear homeologs), which define regions of synteny and therefore recombination candidates, are identified using [GENESPACE](https://github.com/jtlovell/GENESPACE) (by importing the module [snake-GENESPACE](https://github.com/kenji-yt/snake-GENESPACE) which is a snakemake workflow facilitating GENESPACE analysis).
-- Bed files defining bins within the progenitor assemblies are created using [“bedtools makewindow”](https://github.com/arq5x/bedtools2). GC content is counted in these bins using “bedtools nuc”. Average per base mappability is computed in these bins using per base mappability obtained with [genmap](https://github.com/cpockrandt/genmap).
+- Bed files defining bins within the subgenome assemblies are created using [“bedtools makewindow”](https://github.com/arq5x/bedtools2). GC content is counted in these bins using “bedtools nuc”. Average per base mappability is computed in these bins using per base mappability obtained with [genmap](https://github.com/cpockrandt/genmap).
 - Classified bam files, synteny information and binned mappability and GC statistics are then fed into the R-package [healr](https://github.com/kenji-yt/healr). This R-package provides allopolyploid species functions to infer and combine copy numbers between subgenomes. It also has functions for plotting and summary statistics. In HEAL it is used to:
     - Count reads in bins using ([featureCounts](https://subread.sourceforge.net/featureCounts.html)).
     - Filter and normalize based on mappability and GC content.
@@ -34,8 +34,8 @@ git clone https://github.com/kenji-yt/HEAL.git
 
 ## Input 
 
-HEAL requires an input directory formated in the following specific manner. First, the input directory should be named after the type of whole-genome sequencing (WGS) you have. The two options are "DNA" (for regular WGS) and "WGBS" (for whole-genome bisulfite sequencing). In this input directory you must have two directories called "progenitors" and "polyploids":
-- The 'progenitors' directory should contain one subdirectory for each reference genome (each progenitor for allopolyploids). The name of each subdirectory should be the species or genome name and it will appear as such in the output files. Within each subdirectory you should have the corresponding reference genome in fasta/fastq format and annotation in gff format. Name these files as you wish as long as they have one of the following extensions: 
+HEAL requires an input directory formated in the following specific manner. First, the input directory should be named after the type of whole-genome sequencing (WGS) you have. The two options are "DNA" (for regular WGS) and "WGBS" (for whole-genome bisulfite sequencing). In this input directory you must have two directories called "subgenomes" and "polyploids":
+- The 'subgenomes' directory should contain one subdirectory for each reference genome. The name of each subdirectory should be the progenitor or subgenome name and it will appear as such in the output files. Within each subdirectory you should have the corresponding reference genome in fasta/fastq format and annotation in gff format. Name these files as you wish as long as they have one of the following extensions: 
     - "fa","fasta","fq","fna","fastq" for the assemblies.
     - "gff", "gff3" for the annotations. 
 - The 'polyploids' directory should contain one subdirectory per sample. The name of each subdirectory should be a unique sample identifier (don't give the same name to different sample directories). Each of these sample directories should only contain sequencing reads in fasta/fastq format (gzipped or not). There should be one file if the data is single-end and two files if paired-end. If paired-end, make sure the filenames are identical expect for a '1' and '2' indicating which side of the pair each file contains. All samples must have the same sequencing experiment type, so either all are paired-end or all are single-end. HEAL also assumes that the expected read length is the same for each sample. If you have samples with different read lengths and experiment type you must run HEAL separately for each.  
@@ -44,7 +44,7 @@ HEAL requires an input directory formated in the following specific manner. Firs
 Your input directory should have the following structure:
 ```
 input_directory/
-├── progenitors/
+├── subgenomes/
 │   ├── species_1
 │   │   ├── annotation.gff
 │   │   └── assembly.fa
@@ -116,7 +116,7 @@ Results will be written to a directory called "results" inside the HEAL director
 - eagle_rc: Contains the eagle installation and one directory per sample with the eagle-rc results and a script used to produce these results.
 - fastp (if FILTER='True'): Contains one directory per sample with filtered and trimmed read files and quality check reports. 
 - qualimap: Contains one directory per sample containing the output of qualimap for every ".ref." bam files in the 'eagle_rc' directory. 
-- bismark/bwa: Contains bam files of the reads aligned to each (renamed) subgenome. It is important to note that these bam files are assigned to subgenome assemblies which had their chromosome names changed to match eagle-rc requirements. If you intend to use these files you might therefore want to renamed them. The chromosomes were renamed by prepending "UNQ_{progenitor_name}_NME_". 
+- bismark/bwa: Contains bam files of the reads aligned to each (renamed) subgenome. It is important to note that these bam files are assigned to subgenome assemblies which had their chromosome names changed to match eagle-rc requirements. If you intend to use these files you might therefore want to renamed them. The chromosomes were renamed by prepending "UNQ_{subgenome_name}_NME_". 
 - genespace: Contains a directory for MCScanX, a directory for scripts and 'run_dir' which contains the formated input data for GENESPACE as well as the results of the GENESPACE analysis. For more details see [GENESPACE](https://github.com/jtlovell/GENESPACE).
 - genmap: Contains the output of genmap for each subgenome. 
 - healr: Contains an input directory for healr ('input_dir') which can be used as input directory for the healr function 'count_heal_data()'. Each sample has one directory per subgenome with a [symbolic link](https://en.wikipedia.org/wiki/Symbolic_link) to the reads assigned to that subgenome. For two subgenomes there is also a subdirectory ‘unknown’ with a link to the reads EAGLE-RC could not assign to any subgenome (not made for three subgenomes, where EAGLE-RC places each unknown read in one subgenome only; healr itself accepts unknown reads for any number of subgenomes). It also contains a directory called 'healr_list' which can be used for the healr function 'read_heal_list()'. You can use this directory to skip the read counting ('count_heal_data()') step. For each subgenome, 'bins.csv' has the read counts per bin and 'bin_info.csv' has the GC content, mappability and, for two subgenomes, the number of unknown reads (per sample) for all bins. You will also find one directory called stats which has data tables resuming the HE patterns in the data and one directory called figures with copy number alignment plots.

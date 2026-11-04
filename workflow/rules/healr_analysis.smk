@@ -25,7 +25,7 @@ def get_all_healr_inputs(wildcards):
     sample_path = "results/healr/input_dir/polyploids/"
     sample_dict = {sample: sample_path + sample for sample in SAMPLES}
 
-    progenitor_path = "results/healr/input_dir/progenitors/"
+    progenitor_path = "results/healr/input_dir/subgenomes/"
     gc_dict = {progenitor + "_gc": progenitor_path + progenitor + "/" + progenitor + f"_{BIN_SIZE}_gc.bed" for progenitor in PROGENITORS}
     
     mappability_path = "results/genmap/"

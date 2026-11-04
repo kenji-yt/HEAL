@@ -2,7 +2,7 @@ rule define_bins:
     input:
         lambda wildcards: EAGLE_RC.get_assembly(wildcards.progenitor),
     output:
-        bin_bed="results/healr/input_dir/progenitors/{progenitor}/{progenitor}_"+f"{BIN_SIZE}_bins.bed",
+        bin_bed="results/healr/input_dir/subgenomes/{progenitor}/{progenitor}_"+f"{BIN_SIZE}_bins.bed",
     log:
         "results/logs/bin_information/define_bins/{progenitor}.log",
     params:
@@ -18,9 +18,9 @@ rule define_bins:
 rule count_gc:
     input:
         assembly=lambda wildcards: EAGLE_RC.get_assembly(wildcards.progenitor),
-        bin_bed="results/healr/input_dir/progenitors/{progenitor}/{progenitor}_"+f"{BIN_SIZE}_bins.bed",
+        bin_bed="results/healr/input_dir/subgenomes/{progenitor}/{progenitor}_"+f"{BIN_SIZE}_bins.bed",
     output:
-        gc_bed="results/healr/input_dir/progenitors/{progenitor}/{progenitor}_"+f"{BIN_SIZE}_gc.bed",
+        gc_bed="results/healr/input_dir/subgenomes/{progenitor}/{progenitor}_"+f"{BIN_SIZE}_gc.bed",
     log:
         "results/logs/bin_information/gc_content/{progenitor}.log",
     params:
@@ -49,7 +49,7 @@ rule compute_mappability:
     input:
         random_read_file=get_random_read_file(FILTER),
         assembly=lambda wildcards: EAGLE_RC.get_assembly(wildcards.progenitor),
-        bin_bed="results/healr/input_dir/progenitors/{progenitor}/{progenitor}_"+f"{BIN_SIZE}_bins.bed",
+        bin_bed="results/healr/input_dir/subgenomes/{progenitor}/{progenitor}_"+f"{BIN_SIZE}_bins.bed",
     output:
         genmap_index_dir=directory("results/genmap/{progenitor}/index_dir")
     log:
@@ -78,7 +78,7 @@ rule compute_mappability:
         genmap map -K "${{read_length}}" -E 0 -I "{output.genmap_index_dir}" -O "{output.genmap_index_dir}" -bg 2>&1 | tee -a "{log}"
         
         genmap_bedgraph=$(find "{output.genmap_index_dir}" -name *.genmap.bedgraph)
-        mappa_bed="results/healr/input_dir/progenitors/{wildcards.progenitor}/{wildcards.progenitor}_${{read_length}}kmer_{params.bin_size}_mappability.bed"
+        mappa_bed="results/healr/input_dir/subgenomes/{wildcards.progenitor}/{wildcards.progenitor}_${{read_length}}kmer_{params.bin_size}_mappability.bed"
         
         bedtools intersect -a "{input.bin_bed}" -b "${{genmap_bedgraph}}" -wo > "results/genmap/tmp_{wildcards.progenitor}.genmap.intersect.bed" 2>> "{log}" 
         bash "{workflow.basedir}/scripts/map_in_bins.sh" "{params.bin_size}" "results/genmap/tmp_{wildcards.progenitor}.genmap.intersect.bed" "results/genmap/tmp_{wildcards.progenitor}.genmap.unsorted.bed" 2>&1 | tee -a "{log}"

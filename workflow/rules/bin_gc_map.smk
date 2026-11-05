@@ -5,6 +5,8 @@ rule define_bins:
         bin_bed="results/healr/input_dir/subgenomes/{progenitor}/{progenitor}_"+f"{BIN_SIZE}_bins.bed",
     log:
         "results/logs/bin_information/define_bins/{progenitor}.log",
+    benchmark:
+        "results/benchmarks/define_bins/{progenitor}.tsv",
     params:
         bin_size=f"{BIN_SIZE}",
     conda:
@@ -23,6 +25,8 @@ rule count_gc:
         gc_bed="results/healr/input_dir/subgenomes/{progenitor}/{progenitor}_"+f"{BIN_SIZE}_gc.bed",
     log:
         "results/logs/bin_information/gc_content/{progenitor}.log",
+    benchmark:
+        "results/benchmarks/count_gc/{progenitor}.tsv",
     params:
         bin_size=f"{BIN_SIZE}",
     conda:
@@ -54,6 +58,8 @@ rule compute_mappability:
         genmap_index_dir=directory("results/genmap/{progenitor}/index_dir")
     log:
         "results/logs/bin_information/genmap/{progenitor}.log",
+    benchmark:
+        "results/benchmarks/compute_mappability/{progenitor}.tsv",
     params:
         bin_size=f"{BIN_SIZE}",
     conda:

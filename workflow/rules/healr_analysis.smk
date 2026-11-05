@@ -5,6 +5,8 @@ rule make_healr_polyploid_input_dir:
         directory("results/healr/input_dir/polyploids/{sample}"),
     log:
         "results/logs/healr/making_{sample}_input_dir.log"
+    benchmark:
+        "results/benchmarks/make_healr_polyploid_input_dir/{sample}.tsv",
     run:
         with open(log[0], "w") as log_file:
             for prog in PROGENITORS:
@@ -46,6 +48,8 @@ rule healr_analysis:
         filtering_log="results/healr/filtering_log.txt",
     log:
         "results/logs/healr/analysis.log"
+    benchmark:
+        "results/benchmarks/healr_analysis/healr_analysis.tsv",
     threads:workflow.cores
     conda:
         "../envs/healr.yaml"

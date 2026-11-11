@@ -40,7 +40,7 @@ def get_all_healr_inputs(wildcards):
 rule healr_analysis:
     input:
         get_all_healr_inputs,
-        genespace_log="results/logs/genespace/genespace_run.log",
+        genespace_completed="results/genespace/genespace_run_completed.txt",
     output:
         stats=directory("results/healr/stats"),
         healr_list=directory("results/healr/healr_list"),

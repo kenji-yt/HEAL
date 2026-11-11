@@ -73,7 +73,7 @@ You are now ready to run HEAL. From within the "HEAL/" directory downloaded from
 ```
 snakemake --use-conda --cores N --config INPUT_DIR='your/input/directory' 
 ```
-Make sure to have snakemake make installed, to replace 'your/input/directory' with the path to your input directory and 'N' with the number of cores you wish to allocate to the job. WGBS data needs at least 2 cores ('--cores 2'), because Bismark prepares the bisulfite-converted genomes in parallel. If you installed snakemake in a conda environment make sure to activate it (eg. "conda activate snakemake_env").  
+Make sure to have snakemake make installed, to replace 'your/input/directory' with the path to your input directory and 'N' with the number of cores you wish to allocate to the job. WGBS data needs at least 2 cores ('--cores 2'), because Bismark prepares the bisulfite-converted genomes in parallel. If you installed snakemake in a conda environment make sure to activate it (eg. "conda activate snakemake_env").
 
 The outputs will now be generated in a results directory within the HEAL directory. 
 
@@ -104,7 +104,9 @@ snakemake --use-conda --cores 12 --config INPUT_DIR='/path/to/WGBS' SOFT_CLIP='T
 
 You can also run the workflow only up until a specific point. For example, you might want to first check the quality of the raw reads and the effect of filtering (see details [here](https://github.com/kenji-yt/snake-EAGLE-RC?tab=readme-ov-file#quality-check--filtering)). This can be done by using the "--until" flag followed by the rule (name for snakemake analysis step) of your choice. For example, to run only until filtering you can pass "--until eagle_rc_fastp_se" or "eagle_rc_fast_pe" (depending on if your data is single-end (se) or paired-end (pe)). The "eagle_rc_" prefix is added to the snake-EAGLE-RC rule name because HEAL imports snake-EAGLE-RC as a module. For snake-GENESPACE the prefix is "genespace_".
 
-You might also run into memory issues with qualimap. You can manually provide it with more memory by passing the argument "--set-resources eagle_rc_qualimap:mem_mb=16000" (here setting 16000MB of memory to the each qualimap run).
+##### Qualimap Memory Allocation
+
+You might run into memory issues with Qualimap. You can manually provide it with more memory by passing the argument "--set-resources eagle_rc_qualimap:mem_mb=16000" (here setting 16000MB of memory to the each Qualimap run). If you want to make sure the workflow provides all available memory to Qualimap (for example in a slurm run allocated 500GB), set '--resources mem_mb=500000 --set-resources eagle_rc_qualimap:mem_mb=500000'. This tell snakemake that the whole workflow is given 500GB and since Qualimap is given 500GB too, the workflow will not run anything in parallel to Qualimap. 
 
 #### Bin Size
 
@@ -115,13 +117,13 @@ If you realize that the bin size is not appropriate and want to try another valu
 Results will be written to a directory called "results" inside the HEAL directory. In this directory you will find the following files and directories:
 - eagle_rc: Contains the eagle installation and one directory per sample with the eagle-rc results and a script used to produce these results.
 - fastp (if FILTER='True'): Contains one directory per sample with filtered and trimmed read files and quality check reports. 
-- qualimap: Contains one directory per sample containing the output of qualimap for every ".ref." bam files in the 'eagle_rc' directory. 
+- qualimap: Contains one directory per sample containing the output of Qualimap for every ".ref." bam files in the 'eagle_rc' directory. 
 - bismark/bwa: Contains bam files of the reads aligned to each (renamed) subgenome. It is important to note that these bam files are assigned to subgenome assemblies which had their chromosome names changed to match eagle-rc requirements. If you intend to use these files you might therefore want to renamed them. The chromosomes were renamed by prepending "UNQ_{subgenome_name}_NME_". 
 - genespace: Contains a directory for MCScanX, a directory for scripts and 'run_dir' which contains the formated input data for GENESPACE as well as the results of the GENESPACE analysis. For more details see [GENESPACE](https://github.com/jtlovell/GENESPACE).
 - genmap: Contains the output of genmap for each subgenome. 
 - healr: Contains an input directory for healr ('input_dir') which can be used as input directory for the healr function 'count_heal_data()'. Each sample has one directory per subgenome with a [symbolic link](https://en.wikipedia.org/wiki/Symbolic_link) to the reads assigned to that subgenome. For two subgenomes there is also a subdirectory ‘unknown’ with a link to the reads EAGLE-RC could not assign to any subgenome (not made for three subgenomes, where EAGLE-RC places each unknown read in one subgenome only; healr itself accepts unknown reads for any number of subgenomes). It also contains a directory called 'healr_list' which can be used for the healr function 'read_heal_list()'. You can use this directory to skip the read counting ('count_heal_data()') step. For each subgenome, 'bins.csv' has the read counts per bin and 'bin_info.csv' has the GC content, mappability and, for two subgenomes, the number of unknown reads (per sample) for all bins. You will also find one directory called stats which has data tables resuming the HE patterns in the data and one directory called figures with copy number alignment plots.
 - logs: Contains logs for each analysis.
-- MultiQC: Contains the file "multiqc_report.html" which compiles qualimap and fastp reports.  
+- MultiQC: Contains the file "multiqc_report.html" which compiles Qualimap and fastp reports.  
 - snakemake_EAGLE_RC_reproducibility_report.txt: A text file with details about the input and output files and the tools and parameters used. 
 
 ### Revisiting Results with healr

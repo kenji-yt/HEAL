@@ -151,7 +151,7 @@ rule make_reproducibility_report:
 ### Import modules ###
 
 ## EAGLE-RC
-snake_eagle_rc_version_number="1.0.1" # No v before, just the number
+snake_eagle_rc_version_number="1.1.0" # No v before, just the number
 # Get the script and environment files for EAGLE-RC
 # Download the ZIP archive of the repo
 repo_url = f"https://github.com/kenji-yt/snake-EAGLE-RC/archive/refs/tags/v{snake_eagle_rc_version_number}.zip"
@@ -208,8 +208,8 @@ use rule * from EAGLE_RC as eagle_rc_*
 
 
 ## GENESPACE
-snake_GENESPACE_version_number="1.0.1" # No v before, just the number
-# Get the script and environment files for EAGLE-RC
+snake_GENESPACE_version_number="1.1.0" # No v before, just the number
+# Get the script and environment files for GENESPACE
 # Download the ZIP archive of the repo
 repo_url = f"https://github.com/kenji-yt/snake-GENESPACE/archive/refs/tags/v{snake_GENESPACE_version_number}.zip"
 response = requests.get(repo_url) 
@@ -218,29 +218,34 @@ if response.status_code != 200:
 
 # Prepare output paths
 scripts_output_dir = "results/genespace/scripts"
+genespace_envs_output_dir = "results/genespace/envs"
 os.makedirs(scripts_output_dir, exist_ok=True)
+os.makedirs(genespace_envs_output_dir, exist_ok=True)
 
 # Extract only the desired files/directories
 with zipfile.ZipFile(io.BytesIO(response.content)) as z:
     found_scripts = False
+    found_envs = False
     for member in z.namelist():
-        # Extract files from script directory 
-        if member.startswith(f"snake-GENESPACE-{snake_GENESPACE_version_number}/workflow/scripts/") and not member.endswith("/"):
-            filename = os.path.basename(member)
-            target_path = os.path.join(scripts_output_dir, filename)
-            with open(target_path, "wb") as f:
-                f.write(z.read(member))
-            found_scripts = True
+        # Extract files from the scripts and envs directories
+        for sub_dir, target_dir in [("scripts", scripts_output_dir), ("envs", genespace_envs_output_dir)]:
+            if member.startswith(f"snake-GENESPACE-{snake_GENESPACE_version_number}/workflow/{sub_dir}/") and not member.endswith("/"):
+                with open(os.path.join(target_dir, os.path.basename(member)), "wb") as f:
+                    f.write(z.read(member))
+                if sub_dir == "scripts":
+                    found_scripts = True
+                else:
+                    found_envs = True
 # Check if the extraction was successful
-if not found_scripts:
-    raise ValueError("Failed to extract scripts from the snake-GENESPACE git directory.")
+if not found_scripts or not found_envs:
+    raise ValueError("Failed to extract scripts or envs from the snake-GENESPACE git directory.")
 
 # Define the GENESPACE configuration
 genespace_config_values = {
     "INPUT_DIR": SUBGENOMES_DIR,
-    "SCRIPTS_DIR": "results/genespace/scripts"
+    "SCRIPTS_DIR": "results/genespace/scripts",
+    "ENVS_DIR": "results/genespace/envs",
 }
-
 module GENESPACE:
     snakefile: 
         github("kenji-yt/snake-GENESPACE", path="workflow/Snakefile", tag=f"v{snake_GENESPACE_version_number}")

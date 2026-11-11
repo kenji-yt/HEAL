@@ -115,7 +115,7 @@ wildcard_constraints: # limit the value of these wildcards to directory names
 ### Versions (recorded in the reproducibility report; update with each release)
 HEAL_VERSION = "1.1.0"
 # healr GitHub tag installed by healr_analysis
-HEALR_VERSION = "2.0.0"
+HEALR_VERSION = "1.1.0"
 
 ### Rules ###
 include: "rules/bin_gc_map.smk"

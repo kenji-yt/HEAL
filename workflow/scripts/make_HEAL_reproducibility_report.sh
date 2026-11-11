@@ -74,9 +74,6 @@ echo "" >> "${report}"
 awk '/\* INPUT DATA \*/ {flag=1; next} /\* TOOLS \*/ {flag=0} flag' $snake_eagle_rc_report \
  | grep -v '^$' | grep -v '^\*' >> "${report}"
 
-awk '/\* INPUT DATA \*/ {flag=1; next} /\* TOOLS \*/ {flag=0} flag' $snake_genespace_report \
- | grep -v '^$' | grep -v '^\*' >> "${report}"
-
 echo "" >> "${report}"
 echo "" >> "${report}"
 echo "*********" >> "${report}"
@@ -112,10 +109,10 @@ echo "" >> "${report}"
 
 if [ "$OS" == "Linux" ]; then
     echo "Linux md5sum checksums for the output files" >> "${report}"
-    find results/healr/stats/ -type f | xargs -n${n_cores} md5sum | awk '{print $2"\t"$1}' >> "${report}"  
+    find results/healr/stats/ -type f ! -name ".snakemake_timestamp" | xargs -n${n_cores} md5sum | awk '{print $2"\t"$1}' >> "${report}"  
 else
-    echo "Mac md5 checksums for the input files" >> "${report}"
-    find results/healr/stats/ -type f | xargs -n${n_cores} md5 | awk '{print $2"\t"$4}' >> "${report}"  
+    echo "Mac md5 checksums for the output files" >> "${report}"
+    find results/healr/stats/ -type f ! -name ".snakemake_timestamp" | xargs -n${n_cores} md5 | awk '{print $2"\t"$4}' >> "${report}"  
 fi
 echo "" >> "${report}"
 awk '/\* OUTPUT FILES \*/ {flag=1; next} /\* PERFORMANCE \*/ {flag=0} flag' $snake_eagle_rc_report \
